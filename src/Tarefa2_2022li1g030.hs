@@ -12,13 +12,6 @@ import LI12223
 
 import System.Random
 
-{-
-gera :: Int -> [Int] -> [Int]
-gera n lt = let ls = take 5 $ randoms (mkStdGen n)
-                l = zip lt ls
-            in map (\(t,s) -> mod s t) l
--}
-
 -- pode ser qualquer terreno a seguir
 m = (Mapa 2 [(Rio 1, [Nenhum, Tronco])
             ,(Estrada (-1), [Carro, Nenhum])
@@ -45,10 +38,14 @@ m3 = (Mapa 2 [(Relva, [Nenhum, Arvore])
              ,(Relva, [Arvore, Nenhum])])
 
 
-
+gera :: Int -> [Int] -> [Int]
+gera seed lt = let ls = take (length lt) $ randoms (mkStdGen seed)
+                   l = zip lt ls
+               in map (\(t,s) -> mod s t) l
 
 estendeMapa :: Mapa -> Int -> Mapa
-estendeMapa = undefined
+estendeMapa (Mapa n ((a,b):t)) seed = undefined
+
 
 proximosTerrenosValidos :: Mapa -> [Terreno]
 proximosTerrenosValidos (Mapa _ ((Rio _, _):(Rio _, _):(Rio _, _):(Rio _, _):t)) = [Estrada 0, Relva]
@@ -58,12 +55,9 @@ proximosTerrenosValidos _ = [Rio 0, Estrada 0, Relva]
 
 
 proximosObstaculosValidos :: Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
-proximosObstaculosValidos = undefined
-{- proximosObstaculosValidos 0 (_, _) = []
-proximosObstaculosValidos x (Terreno, l) 
-    | l == [] && (mod x 2) == 0 = proximosObstaculosValidos (x-1) (Terreno, l) ++ [Nenhum]
-    | l == [] && (mod x 2) == 1 && Terreno == Relva = proximosObstaculosValidos (x-1) (Relva, l) ++ [Arvore]
-    | l == [] && (mod x 2) == 1 && Terreno == Rio _ = proximosObstaculosValidos (x-5) (Rio _, l) ++ [Tronco]
-    | l == [] && (mod x 2) == 1 && Terreno == Estrada _ = proximosObstaculosValidos (x-3) (Estrada_, l) ++ [Carro]
-    | l == (h:t) && (mod x 2) == 0 = proximosObstaculosValidos (x-1) (Terreno, t) ++ [h]
--}
+proximosObstaculosValidos n (t,l)
+    | length l >= n = []
+    | otherwise = case t of
+                    (Rio _) -> [Nenhum, Tronco]
+                    (Estrada _) -> [Nenhum, Carro]
+                    Relva -> [Nenhum, Arvore]
