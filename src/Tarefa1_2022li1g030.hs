@@ -10,9 +10,19 @@ module Tarefa1_2022li1g030 where
 
 import LI12223
 
+{- |A função mapaValido, que recebe um mapa e obtem um bool, verifica se um dado mapa é válido, ou seja, se um dado mapa não viola nenhuma das seguintes restrições:
+1. Não existem obstáculos em terrenos impróprios (por exemplo troncos em estradas ou relvas, árvores em rios ou estradas, etc.);
+2. Rios contíguos têm direções opostas;
+3. Troncos têm, no máximo, 5 unidades de comprimento;
+4. Carros têm, no máximo, 3 unidades de comprimento;
+5. Em qualquer linha existe, no mínimo, um “obstáculo" Nenhum, ou seja, uma linha não pode ser composta exclusivamente por obstáculos, precisando de haver pelo menos um espaço livre;
+6. O comprimento da lista de obstáculos de cada linha corresponde exatamente à largura do mapa;
+7. Contiguamente, não devem existir mais do que 4 rios, nem 5 estradas ou relvas.
+
+A função mapaValido pode ser definida em função de outras 6 funções: a função obstaculoTerrenoProprio, a função riosDirecaoOposta, a função compMaxObstaculos, a função umNenhumNoMinimo, a função larguraCompObstaculos e a função maxTerrenoContiguo.
+-}
 mapaValido :: Mapa -> Bool
-mapaValido (Mapa n l) | obstaculoTerrenoProprio (Mapa n l) && riosDirecaoOposta (Mapa n l) && compMaxObstaculos (Mapa n l) && umNenhumNoMinimo (Mapa n l) && larguraCompObstaculos (Mapa n l) && maxTerrenoContiguo (Mapa n l) = True
-                      | otherwise = False
+mapaValido (Mapa n l) = obstaculoTerrenoProprio (Mapa n l) && riosDirecaoOposta (Mapa n l) && compMaxObstaculos (mapaListaObstaculosDuplicados (Mapa n l)) && umNenhumNoMinimo (Mapa n l) && larguraCompObstaculos (Mapa n l) && maxTerrenoContiguo (duplicarListaMapa (Mapa n l))
 
 obstaculoTerrenoProprio :: Mapa -> Bool
 obstaculoTerrenoProprio (Mapa n ((Rio n1,(h:t1)):t)) | h == Tronco || h == Nenhum = obstaculoTerrenoProprio (Mapa n ((Rio n1,t1):t))
@@ -40,6 +50,13 @@ compMaxObstaculos (Mapa n ((ter,(_:t1)):t)) = compMaxObstaculos (Mapa n ((ter,t1
 compMaxObstaculos (Mapa n ((_,[]):t)) = compMaxObstaculos (Mapa n t)
 compMaxObstaculos (Mapa n []) = True
 
+mapaListaObstaculosDuplicados :: Mapa -> Mapa
+mapaListaObstaculosDuplicados (Mapa n l) = (Mapa n (duplicarListaObstaculos l))
+
+duplicarListaObstaculos :: [(Terreno,[Obstaculo])] -> [(Terreno,[Obstaculo])] 
+duplicarListaObstaculos ((ter,l):t) = ((ter,l ++ l): duplicarListaObstaculos t)
+duplicarListaObstaculos [] = []
+
 umNenhumNoMinimo :: Mapa -> Bool
 umNenhumNoMinimo (Mapa n ((_,l):t)) | elem Nenhum l == True = umNenhumNoMinimo (Mapa n t)
                                     | otherwise = False
@@ -56,3 +73,6 @@ maxTerrenoContiguo (Mapa n ((Estrada n1,l1):(Estrada n2,l2):(Estrada n3,l3):(Est
 maxTerrenoContiguo (Mapa n ((Relva,l1):(Relva,l2):(Relva,l3):(Relva,l4):(Relva,l5):(Relva,l6):t)) = False
 maxTerrenoContiguo (Mapa n (h:t)) = maxTerrenoContiguo (Mapa n t)
 maxTerrenoContiguo (Mapa n []) = True
+
+duplicarListaMapa :: Mapa -> Mapa
+duplicarListaMapa (Mapa n l) = (Mapa n (l ++ l))
