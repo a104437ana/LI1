@@ -48,7 +48,7 @@ m3 = (Mapa 2 [(Relva, [Nenhum, Arvore])
 
 
 estendeMapa :: Mapa -> Int -> Mapa
-estendeMapa = undefined
+estendeMapa (Mapa n l) x = (Mapa n () ++ (init l))
 
 proximosTerrenosValidos :: Mapa -> [Terreno]
 proximosTerrenosValidos (Mapa _ ((Rio _, _):(Rio _, _):(Rio _, _):(Rio _, _):t)) = [Estrada 0, Relva]
@@ -58,7 +58,16 @@ proximosTerrenosValidos _ = [Rio 0, Estrada 0, Relva]
 
 
 proximosObstaculosValidos :: Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
-proximosObstaculosValidos = undefined
+proximosObstaculosValidos n (Rio _, l) | length l < n = [Nenhum,Tronco]
+                                       | otherwise = []
+proximosObstaculosValidos n (Estrada _, l) | length l < n = [Nenhum,Carro]
+                                           | otherwise = []
+proximosObstaculosValidos n (Relva, l) | length l < n = [Nenhum,Arvore]
+                                       | otherwise = []
+
+mm :: [Terreno] -> Terreno
+mm 
+
 {- proximosObstaculosValidos 0 (_, _) = []
 proximosObstaculosValidos x (Terreno, l) 
     | l == [] && (mod x 2) == 0 = proximosObstaculosValidos (x-1) (Terreno, l) ++ [Nenhum]
