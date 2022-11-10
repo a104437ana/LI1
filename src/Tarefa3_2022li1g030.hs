@@ -19,7 +19,7 @@ animaMapa (Mapa n l) = (Mapa n (movObstaculos l))
 movObstaculos :: [(Terreno, [Obstaculo])] -> [(Terreno, [Obstaculo])]
 movObstaculos ((Rio n,l):t) | n==0 = [(Rio n,l)] ++ (movObstaculos t)
                             | n>0 = [(Rio n, (drop (length l - n) l) ++ (take (length l - n) l))] ++ (movObstaculos t)
-                            | n<0 = [(Rio n, (drop n l) ++ (take n l))] ++ (movObstaculos t)
+                            | n<0 = [(Rio n, (drop (-n) l) ++ (take (-n) l))] ++ (movObstaculos t)
 movObstaculos ((Estrada n,l):t) | n==0 = [(Estrada n,l)] ++ (movObstaculos t)
                                 | n>0 = [(Estrada n, (drop (length l - n) l) ++ (take (length l - n) l))] ++ (movObstaculos t)
                                 | n<0 = [(Estrada n, (drop n l) ++ (take n l))] ++ (movObstaculos t)
