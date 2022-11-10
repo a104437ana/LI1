@@ -10,30 +10,6 @@ module Tarefa4_2022li1g030 where
 
 import LI12223
 
--- jogo não terminou
-j = Jogo (Jogador (2,1)) (Mapa 5 [(Relva, [Nenhum, Arvore, Nenhum, Arvore, Nenhum])
-                                 ,(Rio 1, [Tronco, Tronco, Tronco, Nenhum, Nenhum])
-                                 ,(Estrada 1, [Nenhum, Nenhum, Nenhum, Carro, Carro])])
-
--- jogador na água, terminou
-j1 = Jogo (Jogador (3,1)) (Mapa 5 [(Relva, [Nenhum, Arvore, Nenhum, Arvore, Nenhum])
-                                 ,(Rio 1, [Tronco, Tronco, Tronco, Nenhum, Nenhum])
-                                 ,(Estrada 1, [Nenhum, Nenhum, Nenhum, Carro, Carro])])
-
--- jogador debaixo de carro, terminou
-j2 = Jogo (Jogador (3,2)) (Mapa 5 [(Relva, [Nenhum, Arvore, Nenhum, Arvore, Nenhum])
-                                  ,(Rio 1, [Tronco, Tronco, Tronco, Nenhum, Nenhum])
-                                  ,(Estrada 1, [Nenhum, Nenhum, Nenhum, Carro, Carro])])
-
--- jogador fora do mapa pela largura
-j3 = Jogo (Jogador (5,2)) (Mapa 5 [(Relva, [Nenhum, Arvore, Nenhum, Arvore, Nenhum])
-                                  ,(Rio 1, [Tronco, Tronco, Tronco, Nenhum, Nenhum])
-                                  ,(Estrada 1, [Nenhum, Nenhum, Nenhum, Carro, Carro])])
-
--- jogador fora do mapa pela altura
-j4 = Jogo (Jogador (3,3)) (Mapa 5 [(Relva, [Nenhum, Arvore, Nenhum, Arvore, Nenhum])
-                                  ,(Rio 1, [Tronco, Tronco, Tronco, Nenhum, Nenhum])
-                                  ,(Estrada 1, [Nenhum, Nenhum, Nenhum, Carro, Carro])])
 
 -- | Calcula o obstáculo existente no terreno da posição atual do jogador
 calculaObstaculo :: Int -> (Terreno, [Obstaculo]) -> (Terreno, Obstaculo)
