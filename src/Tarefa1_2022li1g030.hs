@@ -18,7 +18,7 @@ import LI12223
 
 {- |A função 'mapaValido', que recebe um mapa e retorna um bool, verifica se um dado mapa é válido, ou seja, se um dado mapa não viola nenhuma das seguintes restrições:
 
-* Não existem obstáculos em terrenos impróprios (por exemplo troncos em estradas ou relvas, árvores em rios ou estradas, etc.);
+* Não existem obstáculos em terrenos impróprios (por exemplo, troncos em estradas ou relvas, árvores em rios ou estradas, etc.);
 
 * Rios contíguos têm direções opostas;
 
@@ -89,10 +89,10 @@ obstaculoTerrenoProprio (Mapa n ((_,[]):t)) = obstaculoTerrenoProprio (Mapa n t)
 obstaculoTerrenoProprio (Mapa n []) = True
 
 {- |A função 'riosDirecaoOposta', que recebe um mapa e retorna um bool, verifica se num dado mapa rios contíguos apresentam direções opostas, ou seja, verifica se rios
-contíguos apresentam velocidades de sinal oposto (o primeiro rio com velocidade positiva e o segundo com velocidade negativa ou vice-versa). Se isso não se verificar, a função retorna
-False. Se isso se verificar, então a função irá chamar a ela mesma (função recursiva) para verificar se o segundo rio tem direção oposta do terceiro ou se após o segundo 
-rio existe um terreno diferente de rio. Quando a função percorrer todo o mapa e não encontrar nenhuns rios contíguos com direções opostas e quando apenas sobrar a lista vazia ou uma lista
-de um elemento, a função irá retornar True.
+contíguos apresentam velocidades de sinal oposto (por exemplo, o primeiro rio com velocidade positiva e o segundo rio contíguo ao primeiro com velocidade negativa ou vice-versa). 
+Se isso não se verificar, a  função retorna False. Se isso se verificar, então a função irá chamar a ela mesma (função recursiva) para verificar se o segundo rio tem direção oposta do 
+terceiro ou se após o segundo rio existe um terreno diferente de rio. Quando a função percorrer todo o mapa e não encontrar nenhuns rios contíguos com direções opostas e quando apenas 
+sobrar a lista vazia ou uma lista de um elemento, a função irá retornar True.
 
 Assim, a função 'riosDirecaoOposta' pode ser definida da seguinte forma:
 
@@ -180,7 +180,7 @@ compMaxObstaculos (Mapa n ((_,[]):t)) = compMaxObstaculos (Mapa n t)
 compMaxObstaculos (Mapa n []) = True
 
 {- |A função 'umNenhumNoMinimo', que recebe um mapa e retorna um bool, verifica se um dado mapa tem em todas as listas de obstáculos não vazias, no mínimo, um obstáculo Nenhum.
-Esta função percorre toda a lista de obstáculos á procura de um obstáculo Nenhum, atraves da função elem pré-defenida no Haskel. Se Nenhum não for elemento da lista, ou seja,
+Esta função percorre toda a lista de obstáculos á procura de um obstáculo Nenhum, atraves da função elem pré-definida no Haskell. Se Nenhum não for elemento da lista, ou seja,
 se elem Nenhum l é False então a função umNenhumNoMinimo retornara False. Se Nenhum for elemento da lista, ou seja, se elem Nenhum l é True então a função irá chamar a ela mesma 
 (função recursiva) para verificar se Nenhum é elemento da próxima lista de obstáculos. Quando a função tiver percorrido todas as listas de obstáculos do Mapa e encontrar no mínimo
 um obstáculo Nenhum em todas elas e quando apenas sobrar a lista vazia, a função irá retornar True.
