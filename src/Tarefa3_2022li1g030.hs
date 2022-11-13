@@ -37,10 +37,10 @@ animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | y == ordenada (animaJogador (Jog
 
 {- |A função 'ordenada', que recebe um jogo e retorna um número inteiro, descobre qual é a ordenada de um jogador num determinado jogo. Esta função é utilizada na função principal para 
 percebermos se o jogador se movimentou horizontalmente ou verticalmente. Se o y inicial do jogador for igual ao y final do jogador após a função animaJogador, ou seja, após o seu
-movimento, então significa que o jogador apenas se moveu na horizontal (ou ficou parado). Assim, se apenas se moveu na horizontal então existe a possibilidade de ele acompanhar o movimento de um suposto
-tronco, isto se o jogador inicialmente se encontrava num tronco. Esta hipotese será confirmada ou rejeitada atráves das funções 'posicaoInicial' e 'posicaoFinal'. Seo y inicial do jogador 
-não for igual ao y final do jogador após a função animaJogador, ou seja, após o seu movimento, então significa que o jogador se moveu verticalmente, logo o movimento dos troncos não o
-poderá afetar.
+movimento, então significa que o jogador apenas se moveu na horizontal (ou ficou parado). Assim, se apenas se moveu na horizontal então existe a possibilidade de ele acompanhar o movimento 
+de um suposto tronco, isto se o jogador inicialmente se encontrava num tronco. Esta hipótese será confirmada ou rejeitada atráves da função 'posicaoInicial'. Se o y inicial do jogador não
+for igual ao y final do jogador após a função 'animaJogador', ou seja, após o seu movimento, então significa que o jogador se moveu verticalmente, logo o movimento dos troncos não o poderá
+afetar.
 
 Assim, a função 'ordenada' pode ser definida da seguinte forma:
 
@@ -49,6 +49,7 @@ ordenada (Jogo (Jogador (x,y)) (Mapa n l)) = y
 @
 
 -}
+
 ordenada :: Jogo -> Int
 ordenada (Jogo (Jogador (x,y)) (Mapa n l)) = y                                       
 

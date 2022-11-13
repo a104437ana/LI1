@@ -6,7 +6,13 @@ Copyright   : Ana Sá Oliveira <a104437@alunos.uminho.pt>
 
 Módulo para a realização da Tarefa 2 do projeto de LI1 em 2022/23.
 -}
-module Tarefa2_2022li1g030 where
+module Tarefa2_2022li1g030 (
+-- * Função estendeMapa
+-- ** Funções principais
+gera, estendeMapa,
+-- ** Funções auxiliares
+proximosTerrenosValidos, geraTerreno, rioAnterior, velocRioAnterior, geraVelocidade, adicionaVelocidade, proximosObstaculosValidos, contaExtremos, geraObstaculo
+) where
 
 import LI12223
 

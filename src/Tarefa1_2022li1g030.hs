@@ -42,7 +42,7 @@ retornar True.
 Assim, a função 'mapaValido' pode ser definida da seguinte forma:
 
 @
-mapaValido (Mapa n l) = obstaculoTerrenoProprio (Mapa n l) && riosDirecaoOposta (Mapa n l) && compMaxObstaculos (mapaListaObstaculosDuplicados (Mapa n l)) && umNenhumNoMinimo (Mapa n l) && larguraCompObstaculos (Mapa n l) && maxTerrenoContiguo ((Mapa n l)
+mapaValido (Mapa n l) = obstaculoTerrenoProprio (Mapa n l) && riosDirecaoOposta (Mapa n l) && compMaxObstaculos (mapaListaObstaculosDuplicados (Mapa n l)) && umNenhumNoMinimo (Mapa n l) && larguraCompObstaculos (Mapa n l) && maxTerrenoContiguo (Mapa n l)
 @
 
 A função 'mapaValido' contém ainda outra função auxiliar, a função 'mapaListaObstaculosDuplicados' que por sua vez contém outra função auxiliar, a função 'duplicarListaObstaculos'.

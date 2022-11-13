@@ -35,7 +35,6 @@ j8 = (Jogo (Jogador (1,1)) m3)
 
 j9 = (Jogo (Jogador (2,1)) m4)
 j10 = (Jogo (Jogador (0,1)) m4)
-
 j11 = (Jogo (Jogador (2,1)) m6)
 j12 = (Jogo (Jogador (2,0)) m6)
 
@@ -49,32 +48,38 @@ jo4 = (Move Esquerda)
 jo5 = (Move Direita)
 
 -- Testes de animaJogo
+
+-- testar animaJogo quando o jogador se encontra nos limites do mapa
 teste1 = "Teste 1" ~: Jogo (Jogador (0,0)) m2 ~=? (animaJogo j1 jo2)
 teste2 = "Teste 2" ~: Jogo (Jogador (0,0)) m2 ~=? (animaJogo j1 jo4)
 teste3 = "Teste 3" ~: Jogo (Jogador (3,3)) m2 ~=? (animaJogo j2 jo3)
 teste4 = "Teste 4" ~: Jogo (Jogador (3,3)) m2 ~=? (animaJogo j2 jo5)
 
+-- testar animaJogo quando o jogador se aproxima de uma Arvore
 teste5 = "Teste 5" ~: Jogo (Jogador (1,0)) m2 ~=? (animaJogo j3 jo5)
 teste6 = "Teste 6" ~: Jogo (Jogador (2,3)) m2 ~=? (animaJogo j4 jo4)
 teste7 = "Teste 7" ~: Jogo (Jogador (2,2)) m2 ~=? (animaJogo j5 jo3)
 teste8 = "Teste 8" ~: Jogo (Jogador (1,1)) m2 ~=? (animaJogo j6 jo2)
 
+-- testar animaJogo quando o jogador está parado num tronco ou fora dele
 teste9 = "Teste 9" ~: Jogo (Jogador (0,0)) m2 ~=? (animaJogo j1 jo1)
 teste10 = "Teste 10" ~: Jogo (Jogador (3,2)) m2 ~=? (animaJogo j7 jo1)
 
+-- testar animaJogo quando é possível se mover em todas as direções
 teste11 = "Teste 11" ~: Jogo (Jogador (1,1)) m3 ~=? (animaJogo j8 jo1)
 teste12 = "Teste 12" ~: Jogo (Jogador (1,0)) m3 ~=? (animaJogo j8 jo2)
 teste13 = "Teste 13" ~: Jogo (Jogador (1,2)) m3 ~=? (animaJogo j8 jo3)
 teste14 = "Teste 14" ~: Jogo (Jogador (0,1)) m3 ~=? (animaJogo j8 jo4)
 teste15 = "Teste 15" ~: Jogo (Jogador (2,1)) m3 ~=? (animaJogo j8 jo5)
 
+-- testar animaJogo quando o jogador se encontra no terreno Rio
 teste16 = "Teste 16" ~: Jogo (Jogador (1,1)) m5 ~=? (animaJogo j9 jo2)
 teste17 = "Teste 17" ~: Jogo (Jogador ((-1),1)) m5 ~=? (animaJogo j10 jo1)
-
 teste18 = "Teste 18" ~: Jogo (Jogador (2,0)) m7 ~=? (animaJogo j11 jo2)
 teste19 = "Teste 19" ~: Jogo (Jogador (2,0)) m7 ~=? (animaJogo j12 jo4)
 teste20 = "Teste 20" ~: Jogo (Jogador (0,1)) m7 ~=? (animaJogo j11 jo4)
 
+-- testar animaJogo quando o jogador se encontra no terreno Estrada
 teste21 = "Teste 21" ~: Jogo (Jogador (1,0)) m9 ~=? (animaJogo j13 jo1)
 
 testsT3 :: Test
