@@ -29,7 +29,6 @@ O jogo termina se:
 Pode ser definida da seguinte forma: 
 
 @
-jogoTerminou :: Jogo -> Bool
 jogoTerminou (Jogo (Jogador (x,y)) (Mapa a l)) = x < 0 || x >= a || y < 0 || y >= length l || verificaPosicao (jogadorPosicao (x,y) (Mapa a l))
 @
 
@@ -48,7 +47,6 @@ Juntamente com a função 'calculaObstaculo' irá calcular que obstáculo se enc
 Define-se como:
 
 @
-jogadorPosicao :: Coordenadas -> Mapa -> (Terreno, Obstaculo)
 jogadorPosicao (x,y) (Mapa a l) = calculaObstaculo x (l !! y)
 @
 
@@ -65,7 +63,6 @@ A partir disso, calcula um par indicativo do terreno e do obstáculo existentes 
 Esta função define-se como: 
 
 @
-calculaObstaculo :: Int -> (Terreno, [Obstaculo]) -> (Terreno, Obstaculo)
 calculaObstaculo x (b,c) = (b,(c !! x))
 @
 
@@ -79,7 +76,6 @@ calculaObstaculo x (b,c) = (b,(c !! x))
 Isto é, no obstáculo @Nenhum@ se se tratar de um terreno @Rio_@, ou no obstáculo @Carro@ caso esteja num terreno @Estrada _@.
 
 @
-verificaPosicao :: (Terreno, Obstaculo) -> Bool
 verificaPosicao (b,d) = case b of
                           Rio _ -> d == Nenhum
                           Estrada _ -> d == Carro 
