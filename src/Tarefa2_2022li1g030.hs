@@ -16,7 +16,6 @@ import System.Random
 {- | A função 'gera' devolve números inteiros aleatoriamente, para serem utilizados em funções posteriores de modo a criar aleatoriedade na criação das novas linhas do mapa.
 
 @
-gera :: Int -> Int -> [Int]
 gera seed n = take n $ randoms (mkStdGen seed)
 @
 
@@ -35,7 +34,6 @@ O argumento @seed@ é um inteiro aleatório (no intervalo @[0, 100]@), usado par
 Esta função pode ser definida da seguinte forma: 
 
 @
-estendeMapa :: Mapa -> Int -> Mapa
 estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   t0 = geraTerreno seed ptv
                                   va = if t0 == Rio 0 && rioAnterior l then velocRioAnterior l
@@ -70,7 +68,6 @@ estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
 Aqui podemos limitar a quantidade de terrenos contíguos de cada tipo, com um máximo de 4 rios seguidos, e 5 estradas ou relvas seguidas.
 
 @
-proximosTerrenosValidos :: Mapa -> [Terreno]
 proximosTerrenosValidos (Mapa _ ((Rio _, _):(Rio _, _):(Rio _, _):(Rio _, _):t)) = [Estrada 0, Relva]
 proximosTerrenosValidos (Mapa _ ((Estrada _, _):(Estrada _, _):(Estrada _, _):(Estrada _, _):(Estrada _, _):t)) = [Rio 0, Relva]
 proximosTerrenosValidos (Mapa _ ((Relva, _):(Relva, _):(Relva, _):(Relva, _):(Relva, _):t)) = [Rio 0, Estrada 0]
@@ -90,7 +87,6 @@ proximosTerrenosValidos _ = [Rio 0, Estrada 0, Relva]
 um terreno que será utilizado numa próxima linha do mapa.
 
 @
-geraTerreno :: Int -> [Terreno] -> Terreno
 geraTerreno seed l = let rn = head (gera seed 1)
                          ri = mod rn (length l)
                      in l !! ri
@@ -107,7 +103,6 @@ geraTerreno seed l = let rn = head (gera seed 1)
 {- | A função 'rioAnterior' será usada na função 'estendeMapa' para verificar, no caso de a função 'geraTerreno' gerar Rio para a nova linha, se a linha prévia mais recente do mapa usa o terreno @Rio _@.
 
 @
-rioAnterior :: [(Terreno, [Obstaculo])] -> Bool
 rioAnterior ((Rio _,_):_) = True
 rioAnterior _ = False
 @
@@ -122,7 +117,6 @@ rioAnterior _ = False
 {- | A função 'velocRioAnterior' será usada na função 'estendeMapa' para, no caso de a função auxiliar 'rioAnterior' devolver @True@, tomar a velocidade com que esse rio anterior se move. 
 
 @
-velocRioAnterior :: [(Terreno, [Obstaculo])] -> Velocidade
 velocRioAnterior ((Rio v,_):_) = v
 velocRioAnterior _ = 0
 @
@@ -140,7 +134,6 @@ No caso de a linha anterior usar um terreno @Rio@ e de a 'geraTerreno' ter atrib
 esta função irá atribuir velocidades de direção oposta a rios contíguos.
 
 @
-geraVelocidade :: Int -> [Velocidade] -> Velocidade
 geraVelocidade seed l = let rn = head (gera seed 1)
                             ri = mod rn (length l)
                         in l !! ri
@@ -157,7 +150,6 @@ geraVelocidade seed l = let rn = head (gera seed 1)
 {- | A função 'adicionaVelocidade' associa a velocidade devolvida pela função 'geraVelocidade' ao terreno selecionado pela função 'geraTerreno'.
 
 @
-adicionaVelocidade :: Terreno -> Velocidade -> Terreno
 adicionaVelocidade (Rio _) v = Rio v
 adicionaVelocidade (Estrada _) v = Estrada v
 adicionaVelocidade Relva _ = Relva
@@ -174,7 +166,6 @@ adicionaVelocidade Relva _ = Relva
 {- | A função 'proximosObstaculosValidos' calcula que obstáculos podem ser utilizados para preencher a lista de obstáculos de uma próxima linha do mapa, conforme o terreno gerado para a nova linha.
 
 @
-proximosObstaculosValidos :: Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
 proximosObstaculosValidos n (t,l)
     | length l >= n = []
     | length l == (n-1) && not (elem Nenhum l) = [Nenhum]
@@ -229,7 +220,6 @@ proximosObstaculosValidos n (t,l)
 {- | A função 'contaExtremos' é uma função auxiliar da função 'proximosObstaculosValidos' criada para garantir que obstáculos como @Tronco@ e @Carro@ não ultrapassam o seu comprimento máximo.
 
 @
-contaExtremos :: [Obstaculo] -> Obstaculo -> Int
 contaExtremos [] _ = 0
 contaExtremos (h:t) o = if h == o then 1 + contaExtremos t o 
                                   else 0
@@ -247,7 +237,6 @@ contaExtremos (h:t) o = if h == o then 1 + contaExtremos t o
 uma lista de obstáculos que será usada numa próxima linha do mapa. 
 
 @
-geraObstaculo :: [Int] -> Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
 geraObstaculo [] _ _ = []
 geraObstaculo (r:rs) n (t,lo)
     | length lo == n = []
