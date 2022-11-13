@@ -64,7 +64,20 @@ m9 = Mapa n4 [p4]
 n4 = 2
 p4 = (Relva, [Nenhum, Arvore])
 
+--máximo 5 troncos
+m10 = Mapa n5 [p5]
+n5 = 7
+p5 = (Rio (-2), [Tronco, Tronco, Tronco, Nenhum, Tronco, Tronco])
 
+--máximo 3 carros
+m11 = Mapa n6 [p6]
+n6 = 7
+p6 = (Estrada (2), [Carro, Nenhum, Carro, Nenhum, Carro, Carro])
+
+--pelo menos 1 Nenhum
+m12 = Mapa n7 [p7]
+n7 = 5
+p7 = (Relva, [Arvore, Arvore, Arvore, Arvore])
 
 
 testList1 = "Testes função estendeMapa" ~: test [test1, test2]
@@ -81,9 +94,12 @@ test5 = "Teste 5: máximo 5 Relvas contíguos" ~: [Rio 0, Estrada 0] ~=? proximo
 test6 = "Teste 6: qualquer Terreno é válido" ~: [Rio 0, Estrada 0, Relva] ~=? proximosTerrenosValidos m2
 
 
-testList3 = "Testes função proximosObstaculosValidos" ~: test [test7, test8, test9, test10]
+testList3 = "Testes função proximosObstaculosValidos" ~: test [test7, test8, test9, test10, test11, test12, test13]
 
 test7 = "Teste 7: terreno é Rio" ~: [Nenhum, Tronco] ~=? proximosObstaculosValidos n1 p1
 test8 = "Teste 8: terreno é Estrada" ~: [Nenhum, Carro] ~=? proximosObstaculosValidos n2 p2
 test9 = "Teste 8: terreno é Relva" ~: [Nenhum, Arvore] ~=? proximosObstaculosValidos n3 p3
 test10 = "Teste 9: lista de obstáculos completamente preenchida" ~: [] ~=? proximosObstaculosValidos n4 p4
+test11 = "Teste 11: máximo 5 troncos" ~: [Nenhum] ~=? proximosObstaculosValidos n5 p5
+test12 = "Teste 12: máximo 3 carros" ~: [Nenhum] ~=? proximosObstaculosValidos n6 p6
+test13 = "Teste 13: pelo menos 1 Nenhum" ~: [Nenhum] ~=? proximosObstaculosValidos n7 p7
