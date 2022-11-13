@@ -11,7 +11,7 @@ module Tarefa3_2022li1g030 (
 -- ** Função principal
 animaJogo,
 -- ** Funções auxiliares
-movObstaculos, animaLista, animaMapa, posicaoInicial, posicaoFinal, animaJogador
+ordenada, movObstaculos, animaLista, animaMapa, posicaoInicial, posicaoFinal, animaJogador
 ) where
 
 import LI12223
@@ -19,19 +19,38 @@ import LI12223
 {- |A função 'animaJogo', que recebe um jogo e uma jogada e que retorna um jogo, movimenta os obstáculos, de acordo com a velocidade do terreno em que se encontram, e o personagem, de 
 acordo com a jogada dada.
 
-A função 'animaJogo' pode ser definida em função de outras funções auxiliares: a função 'animaMapa', a função 'posicaoInicial', a função 'posicaoFinal' e a função 'animaJogador'. A função 
-'animaMapa' contém ainda outra função auxiliar, a função 'animaLista' que por sua vez contém outra função auxiliar, a função 'movObstaculos'.
+A função 'animaJogo' pode ser definida em função de outras funções auxiliares: a função 'ordenada', a função 'animaMapa', a função 'posicaoInicial', a função 'posicaoFinal' e a função 
+'animaJogador'. A função 'animaMapa' contém ainda outra função auxiliar, a função 'animaLista' que por sua vez contém outra função auxiliar, a função 'movObstaculos'.
 
 Assim, a função 'animaJogo' pode ser definida da seguinte forma:
 
 @
-animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j = animaJogador (Jogo (posicaoFinal (Jogador (x,y)) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l)))) (animaMapa (Mapa n l))) j
+animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | y == ordenada (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j) = (posicaoFinal ((animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j))) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l))))
+                                              | otherwise = animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j)
 @
 
 -}
 
 animaJogo :: Jogo -> Jogada -> Jogo
-animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j = animaJogador (Jogo (posicaoFinal (Jogador (x,y)) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l)))) (animaMapa (Mapa n l))) j
+animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | y == ordenada (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j) = (posicaoFinal ((animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j))) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l))))
+                                              | otherwise = animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j)
+
+{- |A função 'ordenada', que recebe um jogo e retorna um número inteiro, descobre qual é a ordenada de um jogador num determinado jogo. Esta função é utilizada na função principal para 
+percebermos se o jogador se movimentou horizontalmente ou verticalmente. Se o y inicial do jogador for igual ao y final do jogador após a função animaJogador, ou seja, após o seu
+movimento, então significa que o jogador apenas se moveu na horizontal (ou ficou parado). Assim, se apenas se moveu na horizontal então existe a possibilidade de ele acompanhar o movimento de um suposto
+tronco, isto se o jogador inicialmente se encontrava num tronco. Esta hipotese será confirmada ou rejeitada atráves das funções 'posicaoInicial' e 'posicaoFinal'. Seo y inicial do jogador 
+não for igual ao y final do jogador após a função animaJogador, ou seja, após o seu movimento, então significa que o jogador se moveu verticalmente, logo o movimento dos troncos não o
+poderá afetar.
+
+Assim, a função 'ordenada' pode ser definida da seguinte forma:
+
+@
+ordenada (Jogo (Jogador (x,y)) (Mapa n l)) = y  
+@
+
+-}
+ordenada :: Jogo -> Int
+ordenada (Jogo (Jogador (x,y)) (Mapa n l)) = y                                       
 
 {- |A função 'movObstaculos', que recebe um inteiro e um par de terreno e de lista de obstáculos e que retorna um par de terreno e de lista de obstáculos, movimenta os obstáculos de um 
 rio ou estrada de acordo com a velocidade do terreno. Numa estrada ou rio com velocidade v, os obstáculos devem mover-se |v| unidades na direção determinada. Se a velocidade v for igual
@@ -89,18 +108,18 @@ animaLista ((Estrada n,l):t) = [movObstaculos n (Estrada n,l)] ++ (animaLista t)
 animaLista ((Relva,l):t) = [(Relva,l)] ++ (animaLista t)
 animaLista [] = []
 
-{- |A função 'animaMapa', que recebe um mapa e retorna um mapa, utiliza a função 'animaLista' para mover os obstáculos de todo o mapa.
+{- |A função 'animaMapa', que recebe um jogo e retorna um jogo, utiliza a função 'animaLista' para mover os obstáculos de todo o mapa do jogo.
 
 Assim, a função 'animaMapa' pode ser definida da seguinte forma:
 
 @
-animaMapa (Mapa n l) = (Mapa n (movObstaculos l))
+animaMapa (Jogo (Jogador (x,y)) (Mapa n l)) = (Jogo (Jogador (x,y)) (Mapa n (animaLista l)))
 @
 
 -}
 
-animaMapa :: Mapa -> Mapa
-animaMapa (Mapa n l) = (Mapa n (animaLista l))
+animaMapa :: Jogo -> Jogo
+animaMapa (Jogo (Jogador (x,y)) (Mapa n l)) = (Jogo (Jogador (x,y)) (Mapa n (animaLista l)))
 
 {- |A função 'posicaoInicial', que recebe um jogo e retorna um par de terreno e de obstáculo, pega num jogo e calcula o terreno e o obstáculo onde o jogador se encontra naquele jogo. 
 Para o fazer, utiliza a função (!!) pré-definida no Haskell.
@@ -116,11 +135,12 @@ posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l)) = (fst (l !! y) , ((snd (l !! y
 posicaoInicial :: Jogo -> (Terreno,Obstaculo)
 posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l)) = (fst (l !! y) , ((snd (l !! y)) !! x))
 
-{- |A função 'posicaoFinal', que recebe um jogador e um par de terreno e obstáculo e retorna um jogador, calcula as próximas coordenadas do jogador, em função das primeiras coordenadas do
-jogador e em função do terreno e do obstáculo em que o jogador se encontrava. Se a função 'posicaoFinal' receber o par de terreno e de obstáculo obtido pela função 'posicaoInicial' e se
-receber o mesmo jogador do jogo recebido pela função 'posicaoInicial', então podemos calcular as próximas coordenadas do jogador. 
+{- |A função 'posicaoFinal', que recebe um jogo e um par de terreno e obstáculo e retorna um jogo, calcula as próximas coordenadas do jogador, em função das coordenadas do jogador após as 
+funções 'animaMapa' e 'animaJogador' e em função do terreno e do obstáculo em que o jogador se encontrava inicialmente. Se a função 'posicaoFinal' receber o par de terreno e de obstáculo 
+obtido pela função 'posicaoInicial' e se receber o mesmo jogo obtido pela função 'animaMapa' ao receber o jogo obtido pela função 'animaJogador', então podemos calcular as próximas 
+coordenadas do jogador, as coordenadas finais do jogador.
 
-Mesmo quando o jogador não efetua qualquer movimento (quando a sua jogada  ́e Parado), se o personagem se encontrar em cima de um tronco, o jogador acompanha o movimento do tronco. Assim,
+Mesmo quando o jogador não efetua qualquer movimento (quando a sua jogada é Parado), se o personagem se encontrar em cima de um tronco, o jogador acompanha o movimento do tronco. Assim,
 se o jogador se encontrava num Rio com n velocidade e num Tronco, então o jogador mover-se-á n unidades numa determinada direção dependendo do valor de n. Assim, a abcissa do jogador 
 passará de x para x+n. Se o jogador se encontrar num Rio e num Nenhum, ou se se encontrar noutro tipo de terreno, então o jogador não se irá mover com o mapa, logo irá apresentar as mesmas 
 coordenadas.
@@ -128,15 +148,15 @@ coordenadas.
 Assim, a função 'posicaoFinal' pode ser definida da seguinte forma:
 
 @
-posicaoFinal (Jogador (x,y)) (Rio n,Tronco) = (Jogador (x+n,y))
-posicaoFinal (Jogador (x,y)) (_,o) = (Jogador (x,y))
+posicaoFinal (Jogo (Jogador (x,y)) (Mapa n l)) (Rio v,Tronco) = (Jogo (Jogador (x+v,y)) (Mapa n l))
+posicaoFinal (Jogo (Jogador (x,y)) (Mapa n l)) (_,o) = (Jogo (Jogador (x,y)) (Mapa n l))
 @
 
 -}
 
-posicaoFinal :: Jogador -> (Terreno,Obstaculo) -> Jogador
-posicaoFinal (Jogador (x,y)) (Rio n,Tronco) = (Jogador (x+n,y))
-posicaoFinal (Jogador (x,y)) (_,o) = (Jogador (x,y))
+posicaoFinal :: Jogo -> (Terreno,Obstaculo) -> Jogo
+posicaoFinal (Jogo (Jogador (x,y)) (Mapa n l)) (Rio v,Tronco) = (Jogo (Jogador (x+v,y)) (Mapa n l))
+posicaoFinal (Jogo (Jogador (x,y)) (Mapa n l)) (_,o) = (Jogo (Jogador (x,y)) (Mapa n l))
 
 {- |A função 'animaJogador', que recebe um jogo e uma jogada e que retorna um jogo, movimenta um jogador num jogo. 
 
@@ -144,8 +164,8 @@ Se a jogada for Parado então o jogo que retorna será o mesmo que recebeu, uma 
 
 As jogadas Move Cima, Move Baixo, etc. fazem com que o jogador se mova 1 unidade para cima, baixo, etc, respectivamente. Se a jogada for Move Cima então a ordenada do jogador passará de y 
 para y-1. Se a jogada for Move Baixo então a ordenada do jogador passará de y para y+1. Se a jogada for Move Esquerda então a abcissa do jogador passará de x para x-1. Se a jogada for Move
-Direita então a abcissa do jogador passará de x para x+1. Isto acontece porque o jogador apenas pode ter coordenadas maiores ou iguais a 0 e porque o canto superior esquerdo representa as
-coordenadas (0,0).
+Direita então a abcissa do jogador passará de x para x+1. Isto acontece porque o canto superior esquerdo representa as coordenadas (0,0) e porque todas as posições no mapa tem abcissas e 
+ordenadas não negativas (ou seja, positivas ou nulas).
 
 No entanto, temos que ter em atenção que o jogador não consegue escapar do mapa através dos seus movimentos. Por exemplo, se o jogador se encontrar na linha de topo do mapa, então mover-se
 para cima não tem qualquer efeito, uma vez que já se encontra no limite do mapa. Assim, quando y for igual a 0 e quando a jogada for Move Cima, o jogador não altera a sua posição. Seguindo
@@ -153,17 +173,26 @@ o mesmo raciocínio, quando x for igual a 0 e a quando a jogada for Move Esquerd
 começamos a contar do 0) e quando a jogada for Move Direita, o jogador não altera a sua posição. Quando o y for igual ao comprimento da lista total do mapa menos uma unidade (porque
 começamos a contar do 0) e quando a jogada for Move Baixo, o jogador não altera a sua posição.
 
+Por fim, ainda temos de ter em atenção que o jogador não ocupa posições onde existem Arvores. Ou seja, quando o jogador vai em direção a uma Arvore, ele acaba por se manter na mesma 
+posição, uma vez que não pode ocupar a posição de uma Arvore. Assim, se uma Arvore se encontrar, por exemplo, em baixo do jogador, ou seja se 
+posicaoInicial (Jogo (Jogador (x,y+1)) (Mapa n l)) resultar em (Relva,Arvore) e se a jogada for Move Baixo, então o jogador não se irá mecher. Isto também acontece quando tem uma Arvore em
+cima, à direita ou à esquerda do jogador e quando a jogada é respetivamente, Move Cima, Move Direita e Move Esquerda.
+
 Assim, a função 'animaJogador' pode ser definida da seguinte forma:
 
 @
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Parado) = (Jogo (Jogador (x,y)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Cima) | y == 0 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                           | posicaoInicial (Jogo (Jogador (x,y-1)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                            | otherwise = (Jogo (Jogador (x,y-1)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Baixo) | y == (length l) - 1 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                            | posicaoInicial (Jogo (Jogador (x,y+1)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                             | otherwise = (Jogo (Jogador (x,y+1)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Esquerda) | x == 0 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                               | posicaoInicial (Jogo (Jogador (x-1,y)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                                | otherwise = (Jogo (Jogador (x-1,y)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Direita) | x == (n-1) = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                              | posicaoInicial (Jogo (Jogador (x+1,y)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                               | otherwise = (Jogo (Jogador (x+1,y)) (Mapa n l))
 @
 
@@ -172,10 +201,14 @@ animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Direita) | x == (n-1) = (Jo
 animaJogador :: Jogo -> Jogada -> Jogo
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Parado) = (Jogo (Jogador (x,y)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Cima) | y == 0 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                           | posicaoInicial (Jogo (Jogador (x,y-1)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                            | otherwise = (Jogo (Jogador (x,y-1)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Baixo) | y == (length l) - 1 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                            | posicaoInicial (Jogo (Jogador (x,y+1)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                             | otherwise = (Jogo (Jogador (x,y+1)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Esquerda) | x == 0 = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                               | posicaoInicial (Jogo (Jogador (x-1,y)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                                | otherwise = (Jogo (Jogador (x-1,y)) (Mapa n l))
 animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) (Move Direita) | x == (n-1) = (Jogo (Jogador (x,y)) (Mapa n l))
+                                                              | posicaoInicial (Jogo (Jogador (x+1,y)) (Mapa n l)) == (Relva,Arvore) = (Jogo (Jogador (x,y)) (Mapa n l))
                                                               | otherwise = (Jogo (Jogador (x+1,y)) (Mapa n l))
