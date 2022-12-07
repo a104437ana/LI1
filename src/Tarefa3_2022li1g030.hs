@@ -32,8 +32,32 @@ animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | y == ordenada (animaJogador (Jog
 -}
 
 animaJogo :: Jogo -> Jogada -> Jogo
-animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | y == ordenada (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j) = (posicaoFinal ((animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j))) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l))))
+animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) j | terrenoCarro (terrenoFinal (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j)) == True = animaMapaAtropelamento (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j)
+                                              | y == ordenada (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j) = (posicaoFinal ((animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j))) (posicaoInicial (Jogo (Jogador (x,y)) (Mapa n l))))
                                               | otherwise = animaMapa (animaJogador (Jogo (Jogador (x,y)) (Mapa n l)) j)
+
+terrenoFinal :: Jogo -> (Terreno,[Obstaculo])
+terrenoFinal (Jogo (Jogador (x,y)) (Mapa n l)) = (l !! y)
+
+terrenoCarro :: (Terreno,[Obstaculo]) -> Bool
+terrenoCarro (ter, l) = elem Carro l 
+
+movCarros :: Int -> Int -> (Terreno,[Obstaculo]) -> (Terreno,[Obstaculo])
+movCarros x n (Estrada v,[]) = (Estrada v, [])
+movCarros x n (Estrada v,l) | (l !! x) == Carro = (Estrada v,l)
+                            | n==0 = (Estrada v,l)
+                            | n>0 = movCarros x (n-1) (Estrada v,[last l] ++ (init l))
+                            | n<0 = movCarros x (n+1) (Estrada v,(tail l) ++ [head l])
+
+animaListaAtropelamento :: Int -> Int -> [(Terreno, [Obstaculo])] -> [(Terreno, [Obstaculo])]
+animaListaAtropelamento x y [] = []
+animaListaAtropelamento x 0 ((Estrada v,l):t) = [movCarros x v (Estrada v,l)] ++ (animaListaAtropelamento x (-1) t)
+animaListaAtropelamento x y ((Estrada v,l):t) = [movObstaculos v (Estrada v,l)] ++ (animaListaAtropelamento x (y-1) t)
+animaListaAtropelamento x y ((Rio v,l):t) = [movObstaculos v (Rio v,l)] ++ (animaListaAtropelamento x (y-1) t)
+animaListaAtropelamento x y ((Relva,l):t) = [(Relva,l)] ++ (animaListaAtropelamento x (y-1) t)
+
+animaMapaAtropelamento :: Jogo -> Jogo
+animaMapaAtropelamento (Jogo (Jogador (x,y)) (Mapa n l)) = (Jogo (Jogador (x,y)) (Mapa n (animaListaAtropelamento x y l)))
 
 {- |A função 'ordenada', que recebe um jogo e retorna um número inteiro, descobre qual é a ordenada de um jogador num determinado jogo. Esta função é utilizada na função principal para 
 percebermos se o jogador se movimentou horizontalmente ou verticalmente. Se o y inicial do jogador for igual ao y final do jogador após a função animaJogador, ou seja, após o seu
