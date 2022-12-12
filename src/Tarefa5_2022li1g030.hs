@@ -14,6 +14,7 @@ deslizaJogo
 ) where
 
 import LI12223
+import Tarefa2_2022li1g030
 
-deslizaJogo :: Jogo -> Jogo
-deslizaJogo = undefined
+deslizaJogo :: Int -> Jogo -> Jogo
+deslizaJogo seed (Jogo (Jogador (x,y)) (Mapa n l)) = (Jogo (Jogador (x,y+1)) (estendeMapa (Mapa n (init l)) seed))
