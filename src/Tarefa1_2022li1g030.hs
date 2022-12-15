@@ -97,17 +97,19 @@ válido), então a função retorna True. Se obstáculo impŕóprio a um terreno
 Assim, a função 'obstaculoTerrenoProprioLinha' pode ser definida da seguinte forma:
 
 @
-obstaculoTerrenoProprioLinha (ter,lo) = case ter of Rio _ -> notElem Carro lo && notElem Arvore lo
-                                                    Estrada _ -> notElem Tronco lo && notElem Arvore lo
-                                                    Relva -> notElem Tronco lo && notElem Carro lo
+obstaculoTerrenoProprioLinha (ter,lo) = 
+    case ter of Rio _ -> notElem Carro lo && notElem Arvore lo
+                Estrada _ -> notElem Tronco lo && notElem Arvore lo
+                Relva -> notElem Tronco lo && notElem Carro lo
 @
 
 -}
 
 obstaculoTerrenoProprioLinha :: (Terreno,[Obstaculo]) -> Bool
-obstaculoTerrenoProprioLinha (ter,lo) = case ter of Rio _ -> notElem Carro lo && notElem Arvore lo
-                                                    Estrada _ -> notElem Tronco lo && notElem Arvore lo
-                                                    Relva -> notElem Tronco lo && notElem Carro lo
+obstaculoTerrenoProprioLinha (ter,lo) = 
+    case ter of Rio _ -> notElem Carro lo && notElem Arvore lo
+                Estrada _ -> notElem Tronco lo && notElem Arvore lo
+                Relva -> notElem Tronco lo && notElem Carro lo
 
 {- |A função 'riosDirecaoOposta', que recebe um mapa e retorna um bool, verifica se num dado mapa rios contíguos apresentam direções opostas, ou seja, verifica se rios contíguos apresentam
 velocidades de sinal oposto (por exemplo, o primeiro rio com velocidade positiva e o segundo rio contíguo ao primeiro com velocidade negativa ou vice-versa). Se isso não se verificar, a 
@@ -120,25 +122,27 @@ Nota : iremos considerar que rios contíguos com velocidade igual a 0, ou rios c
 Assim, a função 'riosDirecaoOposta' pode ser definida da seguinte forma:
 
 @
-riosDirecaoOposta (Mapa n l) = case l of ((Rio v1,_):(Rio v2,lo2):t) | v1>=0 && v2<=0 -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
-                                                                    | v1<=0 && v2>=0 -> riosDirecaoOposta (Mapa n ((Rio 2,lo2):t))
-                                                                    | otherwise -> False 
-                                         ((_,_):(Rio v2,lo2):t) -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
-                                         ((_,_):(_,_):t) -> riosDirecaoOposta (Mapa n t)
-                                         [(_,_)] -> True
-                                         [] -> True
+riosDirecaoOposta (Mapa n l) = 
+    case l of ((Rio v1,_):(Rio v2,lo2):t) | v1>=0 && v2<=0 -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
+                                          | v1<=0 && v2>=0 -> riosDirecaoOposta (Mapa n ((Rio 2,lo2):t))
+                                          | otherwise -> False 
+              ((_,_):(Rio v2,lo2):t) -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
+              ((_,_):(_,_):t) -> riosDirecaoOposta (Mapa n t)
+              [(_,_)] -> True
+              [] -> True
 @
 
 -}
 
 riosDirecaoOposta :: Mapa -> Bool
-riosDirecaoOposta (Mapa n l) = case l of ((Rio v1,_):(Rio v2,lo2):t) | v1>=0 && v2<=0 -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
-                                                                    | v1<=0 && v2>=0 -> riosDirecaoOposta (Mapa n ((Rio 2,lo2):t))
-                                                                    | otherwise -> False 
-                                         ((_,_):(Rio v2,lo2):t) -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
-                                         ((_,_):(_,_):t) -> riosDirecaoOposta (Mapa n t)
-                                         [(_,_)] -> True
-                                         [] -> True
+riosDirecaoOposta (Mapa n l) = 
+    case l of ((Rio v1,_):(Rio v2,lo2):t) | v1>=0 && v2<=0 -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
+                                          | v1<=0 && v2>=0 -> riosDirecaoOposta (Mapa n ((Rio 2,lo2):t))
+                                          | otherwise -> False 
+              ((_,_):(Rio v2,lo2):t) -> riosDirecaoOposta (Mapa n ((Rio v2,lo2):t))
+              ((_,_):(_,_):t) -> riosDirecaoOposta (Mapa n t)
+              [(_,_)] -> True
+              [] -> True
 
 {- |Queremos verificar se num dado mapa os troncos têm comprimento máximo de 5 unidades e os carros têm comprimento máximo de 3 unidades. Como no terreno Rio e no terreno Estrada, os 
 obstáculos podem se mover numa determinada direção, então a ordem dos obstáculos pode mudar na lista de obstáculos. Assim, para além de garantirmos que não existem 6 troncos seguidos ou 4
@@ -149,8 +153,9 @@ Para verificar isto, decidi duplicar a lista de obstáculos, ou seja, juntar a l
 usei a função recursiva 'duplicarListaObstaculos', que recebe e retorna uma lista de pares de terrenos e de listas de obstáculos (a lista do mapa), que pode ser definida da seguinte forma:
 
 @
-duplicarListaObstaculos l = case l of [] -> []
-                                      ((ter,lo):t) -> (ter,lo ++ lo): duplicarListaObstaculos t
+duplicarListaObstaculos l = 
+    case l of [] -> []
+              ((ter,lo):t) -> (ter,lo ++ lo): duplicarListaObstaculos t
 @
 
 Nota : "Duplicar" a lista dos obstáculos para verificar o comprimento máximo dos obstáculos apenas poderia trazer problemas numa linha com 5 troncos apenas ou numa linha com 3 carros 
@@ -161,8 +166,9 @@ apenas. Nestes casos, o comprimento dos obstáculos é válido mas utilizando a 
 -}
 
 duplicarListaObstaculos :: [(Terreno,[Obstaculo])] -> [(Terreno,[Obstaculo])] 
-duplicarListaObstaculos l = case l of [] -> []
-                                      ((ter,lo):t) -> (ter,lo ++ lo): duplicarListaObstaculos t
+duplicarListaObstaculos l = 
+    case l of [] -> []
+              ((ter,lo):t) -> (ter,lo ++ lo): duplicarListaObstaculos t
 
 {- |Depois usei a função 'mapaListaObstaculosDuplicados', que recebe um mapa (o mapa original) e retorna um mapa (o mapa com as listas de obstáculos duplicados). Esta função utiliza a 
 função anterior ('duplicarListaObstaculos') e pode ser definida da seguinte forma:
@@ -188,21 +194,23 @@ seguidos em nenhuma das listas de obstáculos (em nenhuma das linhas do mapa) e 
 Assim, a função 'compMaxObstaculos' pode ser definida da seguinte forma:
 
 @
-compMaxObstaculos (Mapa n l) = case l of ((_,(Tronco:Tronco:Tronco:Tronco:Tronco:Tronco:_)):_) -> False
-                                         ((_,(Carro:Carro:Carro:Carro:_)):_) -> False
-                                         ((ter,(_:t1)):t) -> compMaxObstaculos (Mapa n ((ter,t1):t))
-                                         ((_,[]):t) -> compMaxObstaculos (Mapa n t)
-                                         [] -> True
+compMaxObstaculos (Mapa n l) = 
+    case l of ((_,(Tronco:Tronco:Tronco:Tronco:Tronco:Tronco:_)):_) -> False
+              ((_,(Carro:Carro:Carro:Carro:_)):_) -> False
+              ((ter,(_:t1)):t) -> compMaxObstaculos (Mapa n ((ter,t1):t))
+              ((_,[]):t) -> compMaxObstaculos (Mapa n t)
+              [] -> True
 @
 
 -}
 
 compMaxObstaculos :: Mapa -> Bool
-compMaxObstaculos (Mapa n l) = case l of ((_,(Tronco:Tronco:Tronco:Tronco:Tronco:Tronco:_)):_) -> False
-                                         ((_,(Carro:Carro:Carro:Carro:_)):_) -> False
-                                         ((ter,(_:t1)):t) -> compMaxObstaculos (Mapa n ((ter,t1):t))
-                                         ((_,[]):t) -> compMaxObstaculos (Mapa n t)
-                                         [] -> True
+compMaxObstaculos (Mapa n l) = 
+    case l of ((_,(Tronco:Tronco:Tronco:Tronco:Tronco:Tronco:_)):_) -> False
+              ((_,(Carro:Carro:Carro:Carro:_)):_) -> False
+              ((ter,(_:t1)):t) -> compMaxObstaculos (Mapa n ((ter,t1):t))
+              ((_,[]):t) -> compMaxObstaculos (Mapa n t)
+              [] -> True
 
 {- |A função 'umNenhumNoMinimo', que recebe um mapa e retorna um bool, verifica se um dado mapa tem em todas as listas de obstáculos não vazias, no mínimo, um obstáculo Nenhum. Esta função
 percorre toda a lista de obstáculos (toda a linha) á procura de um obstáculo Nenhum, através da função elem pré-definida no Haskell. Se Nenhum não for elemento da lista, ou seja, se 
@@ -213,17 +221,19 @@ no mínimo um obstáculo Nenhum em todas elas e quando apenas sobrar a lista vaz
 Assim, a função 'umNenhumNoMinimo' pode ser definida da seguinte forma:
 
 @
-umNenhumNoMinimo (Mapa n l) = case l of [] -> True
-                                        ((_,lo):t) -> if elem Nenhum lo then umNenhumNoMinimo (Mapa n t)
-                                                      else False
+umNenhumNoMinimo (Mapa n l) = 
+    case l of [] -> True
+              ((_,lo):t) -> if elem Nenhum lo then umNenhumNoMinimo (Mapa n t)
+                            else False
 @
 
 -}
 
 umNenhumNoMinimo :: Mapa -> Bool
-umNenhumNoMinimo (Mapa n l) = case l of [] -> True
-                                        ((_,lo):t) -> if elem Nenhum lo then umNenhumNoMinimo (Mapa n t)
-                                                      else False
+umNenhumNoMinimo (Mapa n l) = 
+    case l of [] -> True
+              ((_,lo):t) -> if elem Nenhum lo then umNenhumNoMinimo (Mapa n t)
+                            else False
 
 {- |A função 'larguraCompObstaculos', que recebe um mapa e retorna um bool, verifica se num dado mapa a largura do mapa é igual ao comprimento de todas as listas de obstáculos. Esta função
 calcula o comprimeto da lista de obstáculos (o comprimento da linha) através da função length pré-definida no Haskel e verifica se esse valor é igual á largura do mapa. Se não for igual, a
@@ -234,17 +244,19 @@ apenas sobrar a lista vazia, a função irá retornar True.
 Assim, a função 'larguraCompObstaculos' pode ser definida da seguinte forma:
 
 @
-larguraCompObstaculos (Mapa n l) = case l of [] -> True
-                                             ((_,lo):t) -> if n == length lo then larguraCompObstaculos (Mapa n t)
-                                                           else False
+larguraCompObstaculos (Mapa n l) = 
+    case l of [] -> True
+              ((_,lo):t) -> if n == length lo then larguraCompObstaculos (Mapa n t)
+                            else False
 @
 
 -}
 
 larguraCompObstaculos :: Mapa -> Bool
-larguraCompObstaculos (Mapa n l) = case l of [] -> True
-                                             ((_,lo):t) -> if n == length lo then larguraCompObstaculos (Mapa n t)
-                                                           else False
+larguraCompObstaculos (Mapa n l) = 
+    case l of [] -> True
+              ((_,lo):t) -> if n == length lo then larguraCompObstaculos (Mapa n t)
+                            else False
 
 {- |A função 'maxTerrenoContiguo', que recebe um mapa e retorna um bool, verifica se num dado mapa não existem contíguamente mais do que 4 rios, nem 5 estradas ou relvas. Esta função
 verifica que os 5 primeiros terrenos não são todos Rio e que os 6 primeiros terrenos não são todos Estrada ou Relva. Se fossem, então a função retornaria False. Se não fossem, então
@@ -254,18 +266,20 @@ percorrer toda a lista do mapa sendo que não existem contíguamente mais do que
 Assim, a função 'maxTerrenoContiguo' pode ser definida da seguinte forma:
 
 @
-maxTerrenoContiguo (Mapa n l) = case l of ((Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):_) -> False
-                                          ((Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):_) -> False
-                                          ((Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):_) -> False
-                                          (_:t) -> maxTerrenoContiguo (Mapa n t)
-                                          [] -> True
+maxTerrenoContiguo (Mapa n l) = 
+    case l of ((Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):_) -> False
+              ((Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):_) -> False
+              ((Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):_) -> False
+              (_:t) -> maxTerrenoContiguo (Mapa n t)
+              [] -> True
 @
 
 -}
 
 maxTerrenoContiguo :: Mapa -> Bool
-maxTerrenoContiguo (Mapa n l) = case l of ((Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):_) -> False
-                                          ((Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):_) -> False
-                                          ((Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):_) -> False
-                                          (_:t) -> maxTerrenoContiguo (Mapa n t)
-                                          [] -> True
+maxTerrenoContiguo (Mapa n l) = 
+    case l of ((Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):(Rio _,_):_) -> False
+              ((Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):(Estrada _,_):_) -> False
+              ((Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):(Relva,_):_) -> False
+              (_:t) -> maxTerrenoContiguo (Mapa n t)
+              [] -> True
