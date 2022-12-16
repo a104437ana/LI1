@@ -6,65 +6,65 @@ import Test.HUnit
 
 -- Exemplos de Mapas Válidos
 
--- restrição 1
+-- restrição 1 (função obstaculoTerrenoProprioMapa)
 m1 = (Mapa 2 [(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Carro,Nenhum]),(Relva,[Arvore,Nenhum])])
 
--- restrição 2
+-- restrição 2 (função riosDirecaoOposta)
 m2 = (Mapa 2 [(Rio 2,[Tronco,Nenhum]),(Rio (-1),[Nenhum,Tronco]),(Estrada (-1),[Carro,Nenhum])])
 m3 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Rio (-1),[Nenhum,Tronco]),(Rio 1,[Nenhum,Tronco])])
 m4 = (Mapa 2 [(Rio 2,[Tronco,Nenhum]),(Estrada (-1),[Carro,Nenhum]),(Rio 2,[Tronco,Nenhum])])
 m5 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Relva,[Arvore,Nenhum]),(Rio (-1),[Nenhum,Tronco]),(Rio 1,[Nenhum,Tronco])])
 
--- restrição 3
+-- restrição 3 (função compMaxObstaculos em relação aos troncos)
 m6 = (Mapa 8 [(Rio 3, [Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Tronco,Nenhum])])
 m7 = (Mapa 8 [(Relva, [Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Arvore,Nenhum]),(Rio 3, [Nenhum,Nenhum,Tronco,Nenhum,Tronco,Tronco,Tronco,Nenhum])])
 
--- restrição 4
+-- restrição 4 (função compMaxObstaculos em relação aos carros)
 m8 = (Mapa 5 [(Estrada (-2), [Carro,Carro,Carro,Nenhum,Nenhum])])
 m9 = (Mapa 5 [(Relva, [Arvore,Nenhum,Arvore,Arvore,Nenhum]),(Estrada 2, [Nenhum,Carro,Carro,Nenhum,Nenhum])])
 
--- restrição 5
+-- restrição 5 (função umNenhumNoMinimo)
 m10 = (Mapa 2 [(Rio 2,[Nenhum,Tronco]),(Relva,[Arvore,Nenhum])])
 m11 = (Mapa 2 [(Relva, [Nenhum,Nenhum])])
 
--- restrição 6
+-- restrição 6 (função larguraCompObstaculos)
 m12 = (Mapa 4 [(Relva, [Arvore,Nenhum,Arvore,Arvore])])
 m13 = (Mapa 2 [(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Nenhum,Nenhum]),(Relva,[Arvore,Nenhum])])
 
--- restrição 7
+-- restrição 7 (função maxTerrenoContiguo)
 m14 = (Mapa 1 [(Rio 1,[Nenhum]),(Rio (-1),[Nenhum]),(Rio 1,[Nenhum]),(Rio (-1),[Nenhum])])
 m15 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Estrada (-1),[Nenhum,Nenhum]),(Estrada 1,[Carro,Nenhum]),(Estrada (-1),[Carro,Nenhum]),(Estrada 2,[Carro,Nenhum])])
 m16 = (Mapa 2 [(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum])])
 
 -- Exemplos de Mapas Inválidos
 
--- restrição 1
+-- restrição 1 (função obstaculoTerrenoProprioMapa)
 m17 = (Mapa 2 [(Rio 1,[Nenhum,Arvore]),(Estrada (-1),[Carro,Nenhum]),(Relva,[Arvore,Nenhum])])
 m18 = (Mapa 2 [(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Tronco,Nenhum]),(Relva,[Arvore,Nenhum])])
 m19 = (Mapa 2 [(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Carro,Nenhum]),(Relva,[Carro,Nenhum])])
 
--- restrição 2
+-- restrição 2 (função riosDirecaoOposta)
 m20 = (Mapa 2 [(Rio 2,[Tronco,Nenhum]),(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Carro,Nenhum])])
 m21 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Rio 1,[Nenhum,Tronco]),(Rio 1,[Nenhum,Tronco])])
 m22 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Relva,[Arvore,Nenhum]),(Rio (-1),[Nenhum,Tronco]),(Rio (-2),[Nenhum,Tronco])])
 
--- restrição 3
+-- restrição 3 (função compMaxObstaculos em relação aos troncos)
 m23 = (Mapa 8 [(Rio 3, [Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Tronco,Tronco])])
 m24 = (Mapa 8 [(Relva, [Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Arvore,Nenhum]),(Rio 3, [Tronco,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Tronco])])
 
--- restrição 4
+-- restrição 4 (função compMaxObstaculos em relação aos carros)
 m25 = (Mapa 5 [(Estrada (-2), [Carro,Carro,Carro,Nenhum,Carro])])
 m26 = (Mapa 5 [(Relva, [Arvore,Nenhum,Arvore,Arvore,Nenhum]),(Estrada 2, [Nenhum,Carro,Carro,Carro,Carro])])
 
--- restrição 5
+-- restrição 5 (função umNenhumNoMinimo)
 m27 = (Mapa 2 [(Rio 2,[Nenhum,Tronco]),(Relva,[Arvore,Arvore])])
 m28 = (Mapa 3 [(Estrada (-1),[Carro,Carro,Carro])])
 
--- restrição 6
+-- restrição 6 (função larguraCompObstaculos)
 m29 = (Mapa 4 [(Relva, [Nenhum,Arvore,Arvore])])
 m30 = (Mapa 2 [(Rio 1,[Nenhum,Tronco]),(Estrada (-1),[Nenhum,Nenhum]),(Relva,[Arvore])])
 
--- restrição 7
+-- restrição 7 (função maxTerrenoContiguo)
 m31 = (Mapa 1 [(Relva,[Nenhum]),(Rio 1,[Nenhum]),(Rio 1,[Nenhum]),(Rio 1,[Nenhum]),(Rio 1,[Nenhum]),(Rio 1,[Nenhum])])
 m32 = (Mapa 2 [(Estrada (-1),[Carro,Nenhum]),(Estrada (-1),[Nenhum,Nenhum]),(Estrada 1,[Carro,Nenhum]),(Estrada (-1),[Carro,Nenhum]),(Estrada 2,[Carro,Nenhum]),(Estrada 2,[Carro,Nenhum])])
 m33 = (Mapa 1 [(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum]),(Relva,[Arvore,Nenhum])])
