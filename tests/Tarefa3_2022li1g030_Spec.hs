@@ -19,6 +19,15 @@ m7 = (Mapa 4 [(Rio 1, [Nenhum,Tronco,Nenhum,Tronco]),(Rio (-1), [Nenhum,Tronco,N
 m8 = (Mapa 3 [(Estrada 1, [Carro,Nenhum,Carro])])
 m9 = (Mapa 3 [(Estrada 1, [Carro,Carro,Nenhum])])
 
+m10 = (Mapa 3 [(Estrada 2, [Carro,Nenhum,Nenhum])])
+m11 = (Mapa 3 [(Estrada 2, [Nenhum,Carro,Nenhum])])
+
+m12 = (Mapa 6 [(Estrada 3, [Carro,Nenhum,Carro,Nenhum,Nenhum,Nenhum])])
+m13 = (Mapa 6 [(Estrada 3, [Nenhum,Carro,Nenhum,Carro,Nenhum,Nenhum])])
+
+m14 = (Mapa 3 [(Relva, [Nenhum, Nenhum, Nenhum]),(Rio 1, [Nenhum, Tronco, Tronco]),(Relva, [Nenhum, Nenhum, Nenhum])])
+m15 = (Mapa 3 [(Relva, [Nenhum, Nenhum, Nenhum]),(Rio 1, [Tronco, Nenhum, Tronco]),(Relva, [Nenhum, Nenhum, Nenhum])])
+
 -- Exemplos de Jogos
 j1 = (Jogo (Jogador (0,0)) m1)
 j2 = (Jogo (Jogador (3,3)) m1)
@@ -39,6 +48,12 @@ j11 = (Jogo (Jogador (2,1)) m6)
 j12 = (Jogo (Jogador (2,0)) m6)
 
 j13 = (Jogo (Jogador (1,0)) m8)
+
+j14 = (Jogo (Jogador (1,0)) m10)
+
+j15 = (Jogo (Jogador (3,0)) m12)
+
+j16 = (Jogo (Jogador (1,1)) m14)
 
 -- Exemplos de Jogadas
 jo1 = (Parado)
@@ -82,5 +97,14 @@ teste20 = "Teste 20" ~: Jogo (Jogador (0,1)) m7 ~=? (animaJogo j11 jo4)
 -- testar animaJogo quando o jogador se encontra no terreno Estrada
 teste21 = "Teste 21" ~: Jogo (Jogador (1,0)) m9 ~=? (animaJogo j13 jo1)
 
+-- testar animaJogo em situações de atropelamento
+teste22 = "Teste 22" ~: Jogo (Jogador (1,0)) m11 ~=? (animaJogo j14 jo1)
+teste23 = "Teste 23" ~: Jogo (Jogador (0,0)) m10 ~=? (animaJogo j14 jo4)
+teste24 = "Teste 24" ~: Jogo (Jogador (3,0)) m13 ~=? (animaJogo j15 jo1)
+
+-- testar animaJogo quando o Jogador se move num tronco
+teste25 = "Teste 25" ~: Jogo (Jogador (1,0)) m15 ~=? (animaJogo j16 jo2)
+teste26 = "Teste 26" ~: Jogo (Jogador (3,1)) m15 ~=? (animaJogo j16 jo5)
+
 testsT3 :: Test
-testsT3 = TestLabel "Testes Tarefa 3" $ test [teste1,teste2,teste3,teste4,teste5,teste6,teste7,teste8,teste9,teste10,teste11,teste12,teste13,teste14,teste15,teste16,teste17,teste18,teste19,teste20,teste21]
+testsT3 = TestLabel "Testes Tarefa 3" $ test [teste1,teste2,teste3,teste4,teste5,teste6,teste7,teste8,teste9,teste10,teste11,teste12,teste13,teste14,teste15,teste16,teste17,teste18,teste19,teste20,teste21,teste22,teste23,teste24,teste25,teste26]
