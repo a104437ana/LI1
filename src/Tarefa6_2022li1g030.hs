@@ -42,8 +42,15 @@ desenha (PerdeuJogo, _) = Pictures [color red fundo,perdeu]
 desenhaJogo :: Jogo -> Picture
 desenhaJogo (Jogo (Jogador (x,y)) (Mapa n l)) = 
 
-evento :: Event -> World -> World
-evento =
+evento :: Event -> World -> Maybe World
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, _) = Just (ModoJogo, primeiroJogo) -- primeiroJogo é uma função que devolve o jogo com o mapa composto pelas 3 primeiras linhas pré-definidas e as 6 restantes geradas randomly
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, _) = Nothing -- quando chamar esta função, associar o Nothing a fechar a janela
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, _) = Just estadoInicial
+evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j) = animaJogo j (Move Cima)
+evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j) = animaJogo j (Move Baixo)
+evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j) = animaJogo j (Move Esquerda)
+evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j) = animaJogo j (Move Direita)
+evento _ s = s  -- ignora qualquer outro evento
 
 tempo :: Float -> World -> World
 tempo 15 (ModoJogo, (Jogo (Jogador (x,y)) (Mapa n l))) = (ModoJogo, deslizaJogo y (Jogo (Jogador (x,y))))
