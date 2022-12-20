@@ -13,4 +13,4 @@ import Graphics.Gloss.Data.Picture
 
 main :: IO ()
 main = do 
-    play janela black 25 estadoInicial desenha evento tempo
+    play janela black 1 estadoInicial desenha evento tempo
