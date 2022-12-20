@@ -59,16 +59,16 @@ desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-800)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-800)+(-100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-700)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-700)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])]
 
 evento :: Event -> World -> World
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j) = (ModoJogo, j) -- primeiroJogo é uma função que devolve o jogo com o mapa composto pelas 3 primeiras linhas pré-definidas e as 6 restantes geradas randomly
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j) = (ModoJogo, j)
 evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j) = (Opcoes Sair, j)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j) =  error "Fim de Jogo"-- quando chamar esta função, associar o Nothing a fechar a janela
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j) =  error "Fim de Jogo"
 evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j) = (Opcoes Jogar, j)
 evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j) = estadoInicial
 evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Cima))
 evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Baixo))
 evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Esquerda))
 evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Direita))
-evento _ s = s  -- ignora qualquer outro evento
+evento _ s = s
 
 tempo :: Float -> World -> World
 tempo 15 (ModoJogo, (Jogo (Jogador (x,y)) (Mapa n l))) = (ModoJogo, deslizaJogo y (Jogo (Jogador (x,y)) (Mapa n l)))
