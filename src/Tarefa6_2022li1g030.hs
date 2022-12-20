@@ -18,6 +18,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Graphics.Gloss.Data.Picture
 
+
 data Opcao = Jogar
             | Sair
 
@@ -34,8 +35,8 @@ estadoInicial :: World
 estadoInicial = (Opcoes Jogar, (Jogo (Jogador (8,8)) (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum])])))
 
 desenha :: World -> Picture
-desenha (Opcoes Jogar, _) = Pictures [fundo,color blue jogar,sair]
-desenha (Opcoes Sair, _) = Pictures [fundo,jogar,color blue sair]
+desenha (Opcoes Jogar, _) = Pictures [fundo,color red (text "Jogar"),translate 0 (-150) (color black (text "Sair"))]
+desenha (Opcoes Sair, _) = Pictures [fundo,color black (text "Jogar"),translate 0 (-150) (color red (text "Sair"))]
 desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l)) = Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))
 desenha (PerdeuJogo, _) = Pictures [color red fundo,perdeu]
 
@@ -121,11 +122,13 @@ terrenos = pictures [terreno1,terreno2,terreno3,terreno4,terreno5,terreno6,terre
 fundo :: Picture
 fundo = color white (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
 
+{-
 jogar :: Picture
 jogar = (color black (text "Jogar"))
 
 sair :: Picture
 sair = translate 0 (-150) (color black (text "Sair"))
+-}
 
 perdeu :: Picture
 perdeu = color black (text "Perdeu")
