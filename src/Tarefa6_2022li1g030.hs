@@ -60,7 +60,9 @@ desenhaJogador x y = [color yellow (polygon [(((-800)+(100*(fromIntegral x))),35
 
 evento :: Event -> World -> World
 evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j) = (ModoJogo, j) -- primeiroJogo é uma função que devolve o jogo com o mapa composto pelas 3 primeiras linhas pré-definidas e as 6 restantes geradas randomly
+evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j) = (Opcoes Sair, j)
 evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j) =  error "Fim de Jogo"-- quando chamar esta função, associar o Nothing a fechar a janela
+evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j) = (Opcoes Jogar, j)
 evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j) = estadoInicial
 evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Cima))
 evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j) = (ModoJogo, animaJogo j (Move Baixo))
