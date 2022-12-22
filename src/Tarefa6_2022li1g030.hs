@@ -26,36 +26,38 @@ data Menu = Opcoes Opcao
           | ModoJogo 
           | PerdeuJogo
 
-type World = (Menu, Jogo)
+type Pontuacao = Int
+
+type World = (Menu, Jogo, Pontuacao)
 
 janela :: Display
 janela = InWindow "Crossy Road" (1600,900) (0,0)
 
 estadoInicial :: World
 estadoInicial = (Opcoes Jogar, (Jogo (Jogador (8,5)) (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum]),
-                                                               (Rio (-1),[Tronco,Tronco,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Tronco,Nenhum,Tronco,Tronco]),
+                                                               (Rio (-1),[Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum]),
+                                                               (Rio 1,[Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco]),
                                                                (Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
-                                                               (Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
-                                                               (Estrada 1,[Nenhum,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
+                                                               (Estrada 1,[Nenhum,Carro,Carro,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Carro,Carro,Carro,Nenhum,Nenhum,Nenhum,Nenhum]),
                                                                (Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
                                                                (Relva,[Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore]),
                                                                (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
-                                                               (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])))
+                                                               (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])), 0)
 
 desenha :: World -> Picture
-desenha (Opcoes Jogar, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
-desenha (Opcoes Sair, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
-desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l)) = Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))
-desenha (PerdeuJogo, _) = Pictures [color red fundo,color black (text "Perdeu")]
+desenha (Opcoes Jogar, _, p) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
+desenha (Opcoes Sair, _, p) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
+desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), p) = Pictures ([Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color white (text (show p)))])
+desenha (PerdeuJogo, _, p) = Pictures [color red fundo, translate (-400) (150) (color green (text "Crossy Road")), translate (-170) 0 (color black (text "Perdeu")), translate (-250) (-150) (color black (text ("Total: " ++ show p)))]
 
 desenhaMapa :: Int -> Mapa -> [Picture]
-desenhaMapa n (Mapa 16 (h:t)) = [desenhaTerreno n h] ++ (desenhaObstaculo 0 n h) ++ (desenhaMapa (n+1) (Mapa 16 t))
-desenhaMapa n (Mapa 16 []) = []
+desenhaMapa p (Mapa 16 (h:t)) = [desenhaTerreno p h] ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa (p+1) (Mapa 16 t))
+desenhaMapa p (Mapa 16 []) = []
 
 desenhaTerreno :: Int -> (Terreno,[Obstaculo]) -> Picture
-desenhaTerreno n (ter,(h:t)) = case ter of Rio _ -> (color azulRio (polygon [((-800),350+(-100)*(fromIntegral n)),((-800),450+(-100)*(fromIntegral n)),(800,450+(-100)*(fromIntegral n)),(800,350+(-100)*(fromIntegral n))]))
-                                           Estrada _ -> (color cinzaEstrada (polygon [((-800),350+(-100)*(fromIntegral n)),((-800),450+(-100)*(fromIntegral n)),(800,450+(-100)*(fromIntegral n)),(800,350+(-100)*(fromIntegral n))]))
-                                           Relva -> (color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral n)),((-800),450+(-100)*(fromIntegral n)),(800,450+(-100)*(fromIntegral n)),(800,350+(-100)*(fromIntegral n))]))
+desenhaTerreno p (ter,(h:t)) = case ter of Rio _ -> (color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
+                                           Estrada _ -> (color cinzaEstrada (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
+                                           Relva -> (color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
 
 desenhaObstaculo :: Int -> Int -> (Terreno,[Obstaculo]) -> [Picture]
 desenhaObstaculo n1 n2 (ter,[]) = []
@@ -68,22 +70,23 @@ desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-800)+(100*(fromIntegral x))),(350+(-100)*(fromIntegral y))),((((-800) + 100*(fromIntegral x)),(450+(-100)*(fromIntegral y)))),(((-700)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-700)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])]
 
 evento :: Event -> World -> World
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j) = (ModoJogo, j)
-evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j) = (Opcoes Sair, j)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j) =  error "Fim de Jogo"
-evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j) = (Opcoes Jogar, j)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j) = estadoInicial
-evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Move Cima))
-evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Move Baixo))
-evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Move Esquerda))
-evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Move Direita))
-evento (EventKey (SpecialKey _) Up _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Parado))
-evento (EventKey (SpecialKey _) _ _ _) (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogador j (Parado))
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j, p) = (ModoJogo, j, p)
+evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j, p) = (Opcoes Sair, j, p)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j, p) =  error "Fim de Jogo"
+evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j, p) = (Opcoes Jogar, j, p)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j, p) = estadoInicial
+evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Move Cima), p+1)
+evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Move Baixo), p-1)
+evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Move Esquerda), p)
+evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Move Direita), p)
+evento (EventKey (SpecialKey _) Up _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Parado), p)
+evento (EventKey (SpecialKey _) _ _ _) (ModoJogo, j, p) = if jogoTerminou j then (PerdeuJogo, j, p) else (ModoJogo, animaJogador j (Parado), p)
 evento _ w = w
 
 tempo :: Float -> World -> World
-tempo 1 (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l))) =
-    if jogoTerminou  (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l))) else (ModoJogo, deslizaJogo y (animaJogo  (Jogo (Jogador (x,y)) (Mapa n l))(Parado)))
+tempo 1 (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l)), p) =
+    if jogoTerminou  (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l)), p) 
+    else (ModoJogo, deslizaJogo y (animaJogo  (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), p)
 
 tempo _ w = w
 
