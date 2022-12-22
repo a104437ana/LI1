@@ -18,6 +18,8 @@ import LI12223
 
 import System.Random
 
+velocidade_max :: Int
+velocidade_max = 3
 
 {- | A função 'gera' devolve números inteiros aleatoriamente, para serem utilizados em funções posteriores de modo a criar aleatoriedade na criação das novas linhas do mapa.
 
@@ -61,9 +63,9 @@ estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   t0 = geraTerreno seed ptv
                                   va = if t0 == Rio 0 && rioAnterior l then velocRioAnterior l
                                                                        else 0
-                                  lvp = if va < 0 then [0..(n-1)]
-                                                  else if va > 0 then [-(n-1)..0]
-                                                                 else [-(n-1)..(n-1)]
+                                  lvp = if va < 0 then [1..velocidade_max]
+                                                  else if va > 0 then [(-velocidade_max)..(-1)]
+                                                                 else [(-velocidade_max)..(-1)] ++ [1..velocidade_max]
                                   velocidade = geraVelocidade seed lvp
                                   terreno = adicionaVelocidade t0 velocidade
                                   obstaculos = geraObstaculo (gera seed n) n (terreno, [])
@@ -203,16 +205,9 @@ proximosObstaculosValidos n (t,l)
     | length l >= n = []
     | length l == (n-1) && not (elem Nenhum l) = [Nenhum]
     | length l == (n-1) = case t of
-                            (Rio _) -> if not (elem Tronco l) then [Tronco]
-                                                              else let inicio = contaExtremos l Tronco
-                                                                       fim = contaExtremos (reverse l) Tronco  
-                                                                   in if inicio + fim < 5 then [Nenhum, Tronco]
-                                                                                          else [Nenhum]
-                            (Estrada _) -> let inicio = contaExtremos l Carro
-                                               fim = contaExtremos (reverse l) Carro  
-                                           in if inicio + fim < 3 then [Nenhum, Carro]
-                                                                  else [Nenhum]
-                            Relva -> [Nenhum, Arvore]
+                            (Rio _) -> proximosObstaculosRio l
+                            (Estrada _) -> proximosObstaculosEstrada l
+                            Relva -> proximosObstaculosRelva l
     | otherwise = case t of
                     (Rio _) -> let inicio = contaExtremos l Tronco
                                in if inicio < 5 then [Nenhum, Tronco]
@@ -221,6 +216,28 @@ proximosObstaculosValidos n (t,l)
                                    in if inicio < 3 then [Nenhum, Carro]
                                                     else [Nenhum]
                     Relva -> [Nenhum, Arvore]
+
+
+
+proximosObstaculosRio :: [Obstaculo] -> [Obstaculo]
+proximosObstaculosRio l = if not (elem Tronco l) then [Tronco]
+                                                 else let inicio = contaExtremos l Tronco
+                                                          fim = contaExtremos (reverse l) Tronco  
+                                                      in if inicio + fim < 5 then [Nenhum, Tronco]
+                                                                             else [Nenhum]
+
+proximosObstaculosEstrada :: [Obstaculo] -> [Obstaculo]
+proximosObstaculosEstrada l = if not (elem Carro l) then [Carro]
+                                                    else let inicio = contaExtremos l Carro
+                                                             fim = contaExtremos (reverse l) Carro  
+                                                         in if inicio + fim < 3 then [Nenhum, Carro]
+                                                                                 else [Nenhum]
+
+proximosObstaculosRelva :: [Obstaculo] -> [Obstaculo]
+proximosObstaculosRelva l = [Nenhum, Arvore]
+
+
+
 
 
 {- | A função 'contaExtremos' é uma função auxiliar da função 'proximosObstaculosValidos' criada para garantir que obstáculos como @Tronco@ e @Carro@ não ultrapassam o seu comprimento máximo.
