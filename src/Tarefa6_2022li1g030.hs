@@ -32,11 +32,19 @@ janela :: Display
 janela = InWindow "Crossy Road" (1600,900) (0,0)
 
 estadoInicial :: World
-estadoInicial = (Opcoes Jogar, (Jogo (Jogador (8,8)) (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Rio 1,[Tronco,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Estrada 1,[Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum])])))
+estadoInicial = (Opcoes Jogar, (Jogo (Jogador (8,5)) (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum]),
+                                                               (Rio (-1),[Tronco,Tronco,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Tronco,Nenhum,Tronco,Tronco]),
+                                                               (Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
+                                                               (Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
+                                                               (Estrada 1,[Nenhum,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
+                                                               (Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
+                                                               (Relva,[Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore]),
+                                                               (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
+                                                               (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])))
 
 desenha :: World -> Picture
 desenha (Opcoes Jogar, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
-desenha (Opcoes Sair, _) = Pictures [fundo,color black (text "Jogar"),translate 0 (-150) (color red (text "Sair"))]
+desenha (Opcoes Sair, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
 desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l)) = Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))
 desenha (PerdeuJogo, _) = Pictures [color red fundo,color black (text "Perdeu")]
 
@@ -54,7 +62,7 @@ desenhaObstaculo n1 n2 (ter,[]) = []
 desenhaObstaculo n1 n2 (ter,(h:t)) = case h of Nenhum -> (desenhaObstaculo (n1 + 1) n2 (ter,t))
                                                Tronco -> [color black (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
                                                Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
-                                               Arvore -> [color green (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
+                                               Arvore -> [color (dark (dark green)) (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
 
 desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-800)+(100*(fromIntegral x))),(350+(-100)*(fromIntegral y))),((((-800) + 100*(fromIntegral x)),(450+(-100)*(fromIntegral y)))),(((-700)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-700)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])]
@@ -74,8 +82,9 @@ evento (EventKey (SpecialKey _) _ _ _) (ModoJogo, j) = if jogoTerminou j then (P
 evento _ w = w
 
 tempo :: Float -> World -> World
-tempo 1 (ModoJogo, j) = if jogoTerminou j then (PerdeuJogo, j) else (ModoJogo, animaJogo j (Parado))
-tempo 3 (ModoJogo, (Jogo (Jogador (x,y)) (Mapa n l))) = (ModoJogo, deslizaJogo y (Jogo (Jogador (x,y)) (Mapa n l)))
+tempo 1 (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l))) =
+    if jogoTerminou  (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l))) else (ModoJogo, deslizaJogo y (animaJogo  (Jogo (Jogador (x,y)) (Mapa n l))(Parado)))
+
 tempo _ w = w
 
 
