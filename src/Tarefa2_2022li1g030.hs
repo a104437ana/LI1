@@ -17,6 +17,7 @@ proximosTerrenosValidos, geraTerreno, rioAnterior, velocRioAnterior, geraVelocid
 import LI12223
 
 import System.Random
+import Data.List
 
 velocidade_max :: Int
 velocidade_max = 3
@@ -61,16 +62,42 @@ Para esta função, vamos usar duas funções auxiliares principais, a 'proximos
 estendeMapa :: Mapa -> Int -> Mapa
 estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   t0 = geraTerreno seed ptv
-                                  va = if t0 == Rio 0 && rioAnterior l then velocRioAnterior l
-                                                                       else 0
-                                  lvp = if va < 0 then [1..velocidade_max]
-                                                  else if va > 0 then [(-velocidade_max)..(-1)]
-                                                                 else [(-velocidade_max)..(-1)] ++ [1..velocidade_max]
+                                  lvp = calcProxVelPossivel l t0
                                   velocidade = geraVelocidade seed lvp
                                   terreno = adicionaVelocidade t0 velocidade
-                                  obstaculos = geraObstaculo (gera seed n) n (terreno, [])
+                                  obstaculos = adicionaObstaculo (Mapa n l) seed terreno
                               in Mapa n ((terreno, obstaculos):l)
 
+adicionaObstaculo :: Mapa -> Int -> Terreno -> [Obstaculo]
+adicionaObstaculo (Mapa n ((t,lo):_)) seed terreno = let lobst = geraObstaculo (gera seed n) n (terreno, [])
+                                                     in if eRelva terreno && eRelva t then substituirEm (escolherIndice seed (elemIndices Nenhum lo)) Nenhum lobst
+                                                                                      else lobst
+
+escolherIndice :: Int -> [Int] -> Int
+escolherIndice seed l = let rn = head (gera seed 1)
+                            ri = mod rn (length l)
+                        in l !! ri
+
+substituirEm :: Int -> Obstaculo -> [Obstaculo] -> [Obstaculo]
+substituirEm x obst [] = []
+substituirEm 0 obst (h:t) = obst:t
+substituirEm x obst (h:t) = h:(substituirEm (x-1) obst t)
+
+eRelva :: Terreno -> Bool
+eRelva Relva = True
+eRelva _ = False
+
+eRio :: Terreno -> Bool
+eRio (Rio _) = True
+eRio _ = False
+
+calcProxVelPossivel :: [(Terreno,[Obstaculo])] -> Terreno -> [Velocidade]
+calcProxVelPossivel l t0 = let va = if eRio t0 && rioAnterior l then velocRioAnterior l
+                                                                else 0
+                               lvp = if va < 0 then [1..velocidade_max]
+                                               else if va > 0 then [(-velocidade_max)..(-1)]
+                                                              else [(-velocidade_max)..(-1)] ++ [1..velocidade_max]
+                           in lvp
 
 {- | A função 'proximosTerrenosValidos' devolve uma lista dos terrenos passíveis de ser utilizados numa próxima linha do mapa, a partir de uma ou mais linhas anteriores.
 Aqui podemos limitar a quantidade de terrenos contíguos de cada tipo, com um máximo de 4 rios seguidos, e 5 estradas ou relvas seguidas.
