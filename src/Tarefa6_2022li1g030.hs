@@ -53,29 +53,29 @@ desenha :: World -> Picture
 desenha (Opcoes Jogar, _, _, _, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
 desenha (Opcoes Sair, _, _, _, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
 desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, _) = 
-    if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ [translate (-800) (330) (color white (text (show p)))])
-    else Pictures ([Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color white (text (show p)))])
+    if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ [translate (-800) (330) (color black (text (show p)))])
+    else Pictures ([Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color black (text (show p)))])
 desenha (ModoPausa, _, _, _, _) = Pictures [fundo,translate (-150) 0 (color black (text "Pausa"))]
 desenha (PerdeuJogo, _, _, p, _) = Pictures [color red fundo, translate (-400) (150) (color green (text "Crossy Road")), translate (-170) 0 (color black (text "Perdeu")), translate (-250) (-150) (color black (text ("Total: " ++ show p)))]
 
 desenhaMapa :: Int -> Mapa -> [Picture]
-desenhaMapa p (Mapa 16 (h:t)) = [desenhaTerreno p h] ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa (p+1) (Mapa 16 t))
+desenhaMapa p (Mapa 16 (h:t)) = (desenhaTerreno p h) ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa (p+1) (Mapa 16 t))
 desenhaMapa p (Mapa 16 []) = []
 
-desenhaTerreno :: Int -> (Terreno,[Obstaculo]) -> Picture
-desenhaTerreno p (ter,(h:t)) = case ter of Rio _ -> (color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
-                                           Estrada _ -> (color cinzaEstrada (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
-                                           Relva -> (color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))]))
+desenhaTerreno :: Int -> (Terreno,[Obstaculo]) -> [Picture]
+desenhaTerreno p (ter,(h:t)) = case ter of Rio _ -> [color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+                                           Estrada _ -> [color cinzaEstrada (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])] ++ [color white (polygon [((-800),440+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,440+(-100)*(fromIntegral p))])] ++ [color white (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),360+(-100)*(fromIntegral p)),(800,360+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+                                           Relva -> [color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
 
 desenhaObstaculo :: Int -> Int -> (Terreno,[Obstaculo]) -> [Picture]
 desenhaObstaculo n1 n2 (ter,[]) = []
 desenhaObstaculo n1 n2 (ter,(h:t)) = case h of Nenhum -> (desenhaObstaculo (n1 + 1) n2 (ter,t))
-                                               Tronco -> [color black (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
-                                               Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
-                                               Arvore -> [color (dark (dark green)) (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
+                                               Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
+                                               Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),370+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),370+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-800)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),390+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),390+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
+                                               Arvore -> [color (dark (dark green)) (polygon [(((-800)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),450+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2))])] ++ [color (dark castanhoTronco) (polygon [(((-770)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2)),(((-770)+(100)*(fromIntegral n1)),390+(-100)*(fromIntegral n2)),(((-730)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-730)+(100*(fromIntegral n1))),350+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (ter,t))
 
 desenhaJogador :: Int -> Int -> [Picture]
-desenhaJogador x y = [color yellow (polygon [(((-800)+(100*(fromIntegral x))),(350+(-100)*(fromIntegral y))),((((-800) + 100*(fromIntegral x)),(450+(-100)*(fromIntegral y)))),(((-700)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-700)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])]
+desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(360+(-100)*(fromIntegral y))),((((-790) + 100*(fromIntegral x)),(440+(-100)*(fromIntegral y)))),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),360+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-755)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y)),(((-755)+(100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-770)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-770)+(100)*(fromIntegral x)),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-790)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-730)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-730)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])]
 
 evento :: Event -> World -> World
 evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j, c, p, s) = (ModoJogo, j, c, p, s)
@@ -107,7 +107,8 @@ evento _ w = w
 tempo :: Float -> World -> World
 tempo t (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, 1) = 
     if jogoTerminou (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, 0) 
-    else (ModoJogo, deslizaJogo (x*y) (animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), c, p, 0)
+    else if mod c 2 == 0 then (ModoJogo, deslizaJogo y (animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), c, p, 0)
+         else (ModoJogo, deslizaJogo x (animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), c, p, 0)
 tempo t (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, s) =
     if jogoTerminou (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, s+1) 
     else (ModoJogo, animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado), c, p, s+1)
@@ -122,51 +123,8 @@ cinzaEstrada = greyN 0.8
 azulRio :: Color
 azulRio = light azure
 
-{-
-terreno1 :: Picture
-terreno1 = color verdeRelva (polygon [((-800),(-450)),((-800),(-350)),(800,(-350)),(800,(-450))])
-
-terreno2 :: Picture
-terreno2 = color cinzaEstrada (polygon [((-800),(-350)),((-800),(-250)),(800,(-250)),(800,(-350))])
-
-terreno3 :: Picture
-terreno3 = color azulRio (polygon [((-800),(-250)),((-800),(-150)),(800,(-150)),(800,(-250))])
-
-terreno4 :: Picture
-terreno4 = color verdeRelva (polygon [((-800),(-150)),((-800),(-50)),(800,(-50)),(800,(-150))])
-
-terreno5 :: Picture
-terreno5 = color verdeRelva (polygon [((-800),(-50)),((-800),50),(800,50),(800,(-50))])
-
-terreno6 :: Picture
-terreno6 = color azulRio (polygon [((-800),50),((-800),150),(800,150),(800,50)])
-
-terreno7 :: Picture
-terreno7 = color cinzaEstrada (polygon [((-800),150),((-800),250),(800,250),(800,150)])
-
-terreno8 :: Picture
-terreno8 = color cinzaEstrada (polygon [((-800),250),((-800),350),(800,350),(800,250)])
-
-terreno9 :: Picture
-terreno9 = color azulRio (polygon [((-800),350),((-800),450),(800,450),(800,350)])
-
-obstaculo11 :: Picture
-obstaculo11 = color red (polygon [(100,(-450)),(100,(-350)),(0,(-350)),(0,(-450))])
-
-terrenos :: Picture
-terrenos = pictures [terreno1,terreno2,terreno3,terreno4,terreno5,terreno6,terreno7,terreno8,terreno9,obstaculo11]
--}
+castanhoTronco :: Color
+castanhoTronco = (makeColor 0.4 0.2 0 0.9)
 
 fundo :: Picture
 fundo = color white (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
-
-{-
-jogar :: Picture
-jogar = (color black (text "Jogar"))
-
-sair :: Picture
-sair = translate 0 (-150) (color black (text "Sair"))
-
-perdeu :: Picture
-perdeu = color black (text "Perdeu")
--}
