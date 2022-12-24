@@ -227,6 +227,11 @@ proximosObstaculosValidos n (t,l)
 
 -}
 
+numeroNenhum :: [Obstaculo] -> Int
+numeroNenhum [] = 0
+numeroNenhum (h:t) | h == Nenhum = 1 + numeroNenhum t
+                   | otherwise = numeroNenhum t
+
 proximosObstaculosValidos :: Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
 proximosObstaculosValidos n (t,l)
     | length l >= n = []
@@ -240,8 +245,9 @@ proximosObstaculosValidos n (t,l)
                                in if inicio < 5 then [Nenhum, Tronco]
                                                 else [Nenhum]
                     (Estrada _) -> let inicio = contaExtremos l Carro
-                                   in if inicio < 3 then [Nenhum, Carro]
-                                                    else [Nenhum]
+                                   in if inicio < 3 && numeroNenhum l <= 5 then [Nenhum]
+                                      else if inicio < 3 then [Nenhum,Carro]
+                                           else [Nenhum]
                     Relva -> [Nenhum, Arvore]
 
 
