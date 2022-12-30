@@ -28,12 +28,9 @@ data Menu = Opcoes Opcao
           | PerdeuJogo
 
 type Pontuacao = Int
-
-type CalculoPontuacao = Int
-
-type Segundos = Int
-
-type World = (Menu, Jogo, CalculoPontuacao, Pontuacao, Segundos)
+type LinhaAtual = Int
+type TempoDecorrido = Int
+type World = (Menu, Jogo, LinhaAtual, Pontuacao, TempoDecorrido)
 
 janela :: Display
 janela = InWindow "Crossy Road" (1600,900) (0,0)
@@ -50,9 +47,9 @@ estadoInicial = (Opcoes Jogar, (Jogo (Jogador (8,5)) (Mapa 16 [(Relva,[Arvore,Ne
                                                                (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])), 0, 0, 0)
 
 desenha :: World -> Picture
-desenha (Opcoes Jogar, _, _, _, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
-desenha (Opcoes Sair, _, _, _, _) = Pictures [fundo,translate (-400) (150) (color green (text "Crossy Road")), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
-desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, _) = 
+desenha (Opcoes Jogar, _, _, _, _) = Pictures [fundo,translate (-600) (150) (scale 1.5 1.5 (color green (text "Crossy Road"))), translate (-150) 0 (color red (text "Jogar")),translate (-125) (-150) (color black (text "Sair"))]
+desenha (Opcoes Sair, _, _, _, _) = Pictures [fundo,translate (-600) (150) (scale 1.5 1.5 (color green (text "Crossy Road"))), translate (-150) 0 (color black (text "Jogar")),translate (-125) (-150) (color red (text "Sair"))]
+desenha (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, td) = 
     if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ [translate (-800) (330) (color black (text (show p)))])
     else Pictures ([Pictures ((desenhaMapa 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color black (text (show p)))])
 desenha (ModoPausa, _, _, _, _) = Pictures [fundo,translate (-150) 0 (color black (text "Pausa"))]
@@ -78,40 +75,42 @@ desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(360+(-100)*(fromIntegral y))),((((-790) + 100*(fromIntegral x)),(440+(-100)*(fromIntegral y)))),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),360+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-755)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y)),(((-755)+(100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-770)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-770)+(100)*(fromIntegral x)),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-790)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-730)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-730)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])]
 
 evento :: Event -> World -> World
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j, c, p, s) = (ModoJogo, j, c, p, s)
-evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j, c, p, s) = (Opcoes Sair, j, c, p, s)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j, c, p, s) =  error "Fim de Jogo"
-evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j, c, p, s) = (Opcoes Jogar, j, c, p, s)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j, c, p, s) = estadoInicial
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Jogar, j, la, p, s) = (ModoJogo, j, la, p, s)
+evento (EventKey (SpecialKey KeyDown) Down _ _) (Opcoes Jogar, j, la, p, s) = (Opcoes Sair, j, la, p, s)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (Opcoes Sair, j, la, p, s) =  error "Fim de Jogo"
+evento (EventKey (SpecialKey KeyUp) Down _ _) (Opcoes Sair, j, la, p, s) = (Opcoes Jogar, j, la, p, s)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j, la, p, s) = estadoInicial
 
-evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j, c, p, s) | jogoTerminou j = (PerdeuJogo, j, c, p, s)
-                                                                     | variacaoDaOrdenada j (Move Cima) /= 0 && c+1 > p = (ModoJogo, animaJogador j (Move Cima), c+1, p+1, s)
-                                                                     | variacaoDaOrdenada j (Move Cima) /= 0 && c+1 <= p = (ModoJogo, animaJogador j (Move Cima), c+1, p, s)
-                                                                     | otherwise = (ModoJogo, animaJogador j (Move Cima), c, p, s)
+evento (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j, la, p, s) | jogoTerminou j = (PerdeuJogo, j, la, p, s)
+                                                                     | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 > p = (ModoJogo, animaJogador j (Move Cima), la+1, p+1, s)
+                                                                     | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 <= p = (ModoJogo, animaJogador j (Move Cima), la+1, p, s)
+                                                                     | otherwise = (ModoJogo, animaJogador j (Move Cima), la, p, s)
 
-evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j, c, p, s) | jogoTerminou j = (PerdeuJogo, j, c, p, s)
-                                                                       | variacaoDaOrdenada j (Move Baixo) /= 0 = (ModoJogo, animaJogador j (Move Baixo), c-1, p, s) 
-                                                                       | otherwise = (ModoJogo, animaJogador j (Move Baixo), c, p, s)
+evento (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j, la, p, s) | jogoTerminou j = (PerdeuJogo, j, la, p, s)
+                                                                       | variacaoDaOrdenada j (Move Baixo) /= 0 = (ModoJogo, animaJogador j (Move Baixo), la-1, p, s) 
+                                                                       | otherwise = (ModoJogo, animaJogador j (Move Baixo), la, p, s)
 
-evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j, c, p, s) = 
-    if jogoTerminou j then (PerdeuJogo, j, c, p, s) else (ModoJogo, animaJogador j (Move Esquerda), c, p, s)
-evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j, c, p, s) = 
-    if jogoTerminou j then (PerdeuJogo, j, c, p, s) else (ModoJogo, animaJogador j (Move Direita), c, p, s)
+evento (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j, la, p, s) = 
+    if jogoTerminou j then (PerdeuJogo, j, la, p, s) else (ModoJogo, animaJogador j (Move Esquerda), la, p, s)
+evento (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j, la, p, s) = 
+    if jogoTerminou j then (PerdeuJogo, j, la, p, s) else (ModoJogo, animaJogador j (Move Direita), la, p, s)
 
-evento (EventKey (SpecialKey _) Up _ _) (ModoJogo, j, c, p, s) = if jogoTerminou j then (PerdeuJogo, j, c, p, s) else (ModoJogo, animaJogador j (Parado), c, p, s)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (ModoJogo, j, c, p, s) = if jogoTerminou j then (PerdeuJogo, j, c, p, s) else (ModoPausa, j, c, p, s)
-evento (EventKey (SpecialKey KeyEnter) Down _ _) (ModoPausa, j, c, p, s) = (ModoJogo, j, c, p, s)
-evento _ (ModoJogo, j, c, p, s) = if jogoTerminou j then (PerdeuJogo, j, c, p, s) else (ModoJogo, animaJogador j (Parado), c, p, s)
+evento (EventKey (SpecialKey _) Up _ _) (ModoJogo, j, la, p, s) = if jogoTerminou j then (PerdeuJogo, j, la, p, s) else (ModoJogo, animaJogador j (Parado), la, p, s)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (ModoJogo, j, la, p, s) = if jogoTerminou j then (PerdeuJogo, j, la, p, s) else (ModoPausa, j, la, p, s)
+evento (EventKey (SpecialKey KeyEnter) Down _ _) (ModoPausa, j, la, p, s) = (ModoJogo, j, la, p, s)
+evento _ (ModoJogo, j, la, p, s) = if jogoTerminou j then (PerdeuJogo, j, la, p, s) else (ModoJogo, animaJogador j (Parado), la, p, s)
 evento _ w = w
 
 tempo :: Float -> World -> World
-tempo t (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, 1) = 
-    if jogoTerminou (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, 0) 
-    else if mod c 2 == 0 then (ModoJogo, deslizaJogo y (animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), c, p, 0)
-         else (ModoJogo, deslizaJogo x (animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado)), c, p, 0)
-tempo t (ModoJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, s) =
-    if jogoTerminou (Jogo (Jogador (x,y)) (Mapa n l)) then (PerdeuJogo,(Jogo (Jogador (x,y)) (Mapa n l)), c, p, s+1) 
-    else (ModoJogo, animaJogo (Jogo (Jogador (x,y)) (Mapa n l)) (Parado), c, p, s+1)
+tempo n (ModoJogo,(Jogo (Jogador (x,y)) m), la, p, td) = 
+    if jogoTerminou (Jogo (Jogador (x,y)) m) 
+        then (PerdeuJogo,(Jogo (Jogador (x,y)) m), la, p, td+1)
+        -- deslizar jogo apenas quando o tempo decorrido é impar
+        else if mod td 2 == 0 
+                then (ModoJogo, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1)
+                -- alterar a seed conforme está numa linha par ou ímpar
+                else if mod la 2 == 0 then (ModoJogo, deslizaJogo (y+x*y) (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1)
+                                      else (ModoJogo, deslizaJogo (x*x+y) (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1)
 tempo _ w = w
 
 verdeRelva :: Color
