@@ -12,6 +12,6 @@ import Graphics.Gloss.Interface.IO.Game
 
 main :: IO ()
 main = do 
-    estrada <- loadBMP "estrada.bmp"
+    estrada <- loadBMP "imagem/estrada.bmp"
     let imagens = [estrada]
     playIO janela black 1 (estadoInicial imagens) desenhaIO eventoIO tempoIO
