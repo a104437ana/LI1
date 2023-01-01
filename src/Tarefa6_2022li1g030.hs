@@ -85,17 +85,17 @@ estadoInicial imagens = (MenuInicial NovoJogo, (Jogo (Jogador (8,5)) (Mapa 16 [(
                                                                        (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])), 0, 0, 0, imagens)
 
 desenhaIO :: World -> IO Picture
-desenhaIO (MenuInicial NovoJogo, _, _, _, _, _) = return $ Pictures [fundo, translate (-600) (160) (scale 1.5 1.5 (color blue (text "Crossy Road"))), translate (-150) 0 (color red (text "Jogar")),translate (-250) (-150) (color black (text "Continuar")),translate (-125) (-300) (color black (text "Sair"))]
-desenhaIO (MenuInicial Continuar, _, _, _, _, _) = return $ Pictures [fundo, translate (-600) (160) (scale 1.5 1.5 (color blue (text "Crossy Road"))), translate (-150) 0 (color black (text "Jogar")),translate (-250) (-150) (color red (text "Continuar")),translate (-125) (-300) (color black (text "Sair"))]
-desenhaIO (MenuInicial Sair, _, _, _, _, _) = return $ Pictures [fundo, translate (-600) (160) (scale 1.5 1.5 (color blue (text "Crossy Road"))), translate (-150) 0 (color black (text "Jogar")),translate (-250) (-150) (color black (text "Continuar")),translate (-125) (-300) (color red (text "Sair"))]
+desenhaIO (MenuInicial NovoJogo, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 1), translate 0 50 (i !! 3),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Continuar, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1), translate 0 50 (i !! 2),translate 0 (-75) (i !! 5),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Sair, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1),translate 0 50 (i !! 2),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 7)]
 desenhaIO (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, td, i) = return $ 
     if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ [translate (-800) (330) (color white (text (show p)))])
     else Pictures ([Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color white (text (show p)))])
-desenhaIO (MenuPausa Retomar, _, _, _, _, _) = return $ Pictures [fundo, translate (-265) (160) (scale 1.5 1.5 (color blue (text "Pausa"))), translate (-235) 0 (color red (text "Retomar")),translate (-200) (-125) (color black (text "Gravar")),translate (-700) (-250) (color black (text "Voltar ao Menu Inicial"))]
-desenhaIO (MenuPausa Gravar, _, _, _, _, _) = return $ Pictures [fundo, translate (-265) (160) (scale 1.5 1.5 (color blue (text "Pausa"))), translate (-235) 0 (color black (text "Retomar")),translate (-200) (-125) (color red (text "Gravar")),translate (-700) (-250) (color black (text "Voltar ao Menu Inicial"))]
-desenhaIO (MenuPausa Gravado, _, _, _, _, _) = return $ Pictures [fundo, translate (-265) (160) (scale 1.5 1.5 (color blue (text "Pausa"))), translate (-235) 0 (color black (text "Retomar")),translate (-200) (-125) (color blue (text "Gravar")),translate (-700) (-250) (color black (text "Voltar ao Menu Inicial"))]
-desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, _) = return $ Pictures [fundo, translate (-265) (160) (scale 1.5 1.5 (color blue (text "Pausa"))), translate (-235) 0 (color black (text "Retomar")),translate (-200) (-125) (color black (text "Gravar")),translate (-700) (-250) (color red (text "Voltar ao Menu Inicial"))]
-desenhaIO (PerdeuJogo, _, _, p, _, _) = return $ Pictures [fundoPerdeu, translate (-600) (160) (scale 1.5 1.5 (color white (text "Crossy Road"))), translate (-200) (-50) (color white (text "Perdeu")), translate (-250) (-200) (color white (text ("Total: " ++ show p)))]
+desenhaIO (MenuPausa Retomar, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 10),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravar, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 12),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravado, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 13),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 15)]
+desenhaIO (PerdeuJogo, _, _, p, _, i) = return $ Pictures ([fundoPerdeu, translate 0 (250) (i !! 16), translate 0 0 (i !! 17), translate (-50) (-200) (i !! 18)] ++ [translate (100) (-250) (color white (text (show p)))])
 
 desenhaMapa :: Imagens -> Int -> Mapa -> [Picture]
 desenhaMapa i p (Mapa 16 (h:t)) = (desenhaTerreno i p h) ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa i (p+1) (Mapa 16 t))
