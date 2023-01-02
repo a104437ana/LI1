@@ -13,6 +13,7 @@ deslizaJogo
 ) where
 
 import LI12223
+import Tarefa1_2022li1g030
 import Tarefa2_2022li1g030
 
 {- |A função 'deslizaJogo', que recebe um número e um jogo e que retorna um jogo, tal como o nome diz, desliza o jogo, ou seja, pega no jogo anterior e elimina a primeira linha do mapa e
