@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Main</title><link href="linuwial.css" rel="stylesheet" type="text/css" title="Linuwial" /><link rel="stylesheet" type="text/css" href="quick-jump.css" /><script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { processClass: "mathjax", ignoreClass: ".*" } });</script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script></head><body><div id="package-header"><span class="caption empty">&nbsp;</span><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr></table><p class="caption">Main</p></div><div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn"><li class="src short"><a href="#v:main">main</a> :: IO ()</li></ul></details></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src"><a id="v:main" class="def">main</a> :: IO () <a href="#v:main" class="selflink">#</a></p><div class="doc"><p>A fun&#231;&#227;o <code><a href="Main.html#v:main" title="Main">main</a></code> &#233; a fun&#231;&#227;o que inicia o jogo, cont&#233;m a lista de bitmaps, cria as primeiras 5 seeds utilizadas no mapa inicial do jogo, e com a fun&#231;&#227;o <code>playIO</code> junta todas as restantes pe&#231;as para executar o jogo.
+Define-se da seguinte forma:</p><pre>main :: IO ()
+main = do
+    estrada &lt;- loadBMP &quot;imagem/estrada.bmp&quot; 
+    titulo &lt;- loadBMP &quot;imagem/titulo.bmp&quot;
+    jogar &lt;- loadBMP &quot;imagem/jogar.bmp&quot;
+    jogar_red &lt;- loadBMP &quot;imagem/jogar_red.bmp&quot;
+    continuar &lt;- loadBMP &quot;imagem/continuar.bmp&quot;
+    continuar_red &lt;- loadBMP &quot;imagem/continuar_red.bmp&quot;
+    sair &lt;- loadBMP &quot;imagem/sair.bmp&quot;
+    sair_red &lt;- loadBMP &quot;imagem/sair_red.bmp&quot;
+    pausa &lt;- loadBMP &quot;imagem/pausa.bmp&quot;
+    retomar &lt;- loadBMP &quot;imagem/retomar.bmp&quot;
+    retomar_red &lt;- loadBMP &quot;imagem/retomar_red.bmp&quot;
+    gravar &lt;- loadBMP &quot;imagem/gravar.bmp&quot;
+    gravar_red &lt;- loadBMP &quot;imagem/gravar_red.bmp&quot;
+    gravar_blue &lt;- loadBMP &quot;imagem/gravar_blue.bmp&quot;
+    voltar_mi &lt;- loadBMP &quot;imagem/voltar_mi.bmp&quot;
+    voltar_mi_red &lt;- loadBMP &quot;imagem/voltar_mi_red.bmp&quot;
+    titulo_perdeu &lt;- loadBMP &quot;imagem/titulo_perdeu.bmp&quot;
+    perdeu &lt;- loadBMP &quot;imagem/perdeu.bmp&quot;
+    total &lt;- loadBMP &quot;imagem/total.bmp&quot;
+    let imagens = [estrada,titulo,jogar,jogar_red,continuar,continuar_red,sair,sair_red,pausa,retomar,retomar_red,gravar,gravar_red,gravar_blue,voltar_mi,voltar_mi_red,titulo_perdeu,perdeu,total]
+    seed1 &lt;- randomIO
+    seed2 &lt;- randomIO
+    seed3 &lt;- randomIO
+    seed4 &lt;- randomIO
+    seed5 &lt;- randomIO
+    playIO janela black 1 (estadoInicial imagens [seed1, seed2, seed3, seed4, seed5]) desenhaIO eventoIO tempoIO
+</pre></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.23.0</p></div></body></html>
