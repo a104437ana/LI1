@@ -2,7 +2,7 @@
 Module      : Tarefa6_2022li1g030
 Description : Aplicação gráfica completa
 Copyright   : Ana Sá Oliveira <a104437@alunos.uminho.pt>
-              Sara Campos Ramalho <a72481@alunos.uminho.pt>
+              Sara Campos Ramalho <a72481'alunos.uminho.pt>
 
 Módulo para a realização da Tarefa 6 do projeto de LI1 em 2022/23.
 -}
@@ -21,29 +21,18 @@ import System.Random
 import System.Directory
 import System.Exit
 
-{-|
-O tipo de dados @OpcaoMenuInicial@ representa as diferentes opções apresentadas no menu inicial do jogo: 
-        @NovoJogo@, para iniciar um novo jogo, 
-        @Continuar@, para carregar um jovo previamente guardado, e 
-        @Sair@, para sair do jogo e fechar a janela.
+{-| O tipo de dados 'OpcaoMenuInicial' representa as diferentes opções apresentadas no menu inicial do jogo: 
+        'NovoJogo', para iniciar um novo jogo, 
+        'Continuar', para carregar um jovo previamente guardado, e 
+        'Sair', para sair do jogo e fechar a janela.
 
-O tipo de dados @OpcaoMenuPausa@ representa as opções disponíveis no menu de pausa do jogo: 
-        @Retomar@, para sair do menu de pausa e voltar ao mapa do jogo
-        @Gravar@, para guardar num ficheiro o progresso feito no mapa
-        @Gravado@, para confirmar que foi de facto guardado o progresso do jogo
+@
+data OpcaoMenuInicial = NovoJogo
+                      | Continuar
+                      | Sair
+    deriving (Show, Read)
+@
 
-
-O tipo de dados EstadoAtual representa os diferentes estados em que o jogo pode estar: 
-        @MenuInicial@, correspondente ao menu inicial
-        @MenuPausa@, correspondente ao menu de pausa
-        @ModoJogo@, correspondente ao modo de jogo, em que o jogador percorre o mapa
-        @PerdeuJogo@, correspondente ao fim de um jogo por ter perdido
-
-Os tipos de dados @Pontuacao@, LinhaAtual e TempoDecorrido correspondem, respetivamente: 
-à pontuação atingida pelo jogador, à linha do mapa em que o jogador se encontra no momento, e ao tempo decorrido desde o início do jogo,
-
-
-O tipo de dados @World@ junta o @EstadoAtual@, o @Jogo@, a @LinhaAtual@, a @Pontuacao@ e o @TempoDecorrido@ para englobar todos os elementos que vão constituir o jogo.
 -}
 
 data OpcaoMenuInicial = NovoJogo
@@ -51,11 +40,42 @@ data OpcaoMenuInicial = NovoJogo
                       | Sair
     deriving (Show, Read)
 
+{-| O tipo de dados 'OpcaoMenuPausa' representa as opções disponíveis no menu de pausa do jogo: 
+        'Retomar', para sair do menu de pausa e voltar ao mapa do jogo
+        'Gravar', para guardar num ficheiro o progresso feito no mapa
+        'Gravado', para confirmar que foi de facto guardado o progresso do jogo
+
+@
 data OpcaoMenuPausa = Retomar
                     | Gravar
                     | Gravado
                     | VoltarMenuInicial
     deriving (Show, Read)
+@ 
+
+-}
+
+data OpcaoMenuPausa = Retomar
+                    | Gravar
+                    | Gravado
+                    | VoltarMenuInicial
+    deriving (Show, Read)
+
+{-| O tipo de dados EstadoAtual representa os diferentes estados em que o jogo pode estar: 
+        'MenuInicial', correspondente ao menu inicial
+        'MenuPausa', correspondente ao menu de pausa
+        'ModoJogo', correspondente ao modo de jogo, em que o jogador percorre o mapa
+        'PerdeuJogo', correspondente ao fim de um jogo por ter perdido
+
+@
+data EstadoAtual = MenuInicial OpcaoMenuInicial
+                 | MenuPausa OpcaoMenuPausa
+                 | ModoJogo
+                 | PerdeuJogo
+    deriving (Show, Read)
+@
+
+-}
 
 data EstadoAtual = MenuInicial OpcaoMenuInicial
                  | MenuPausa OpcaoMenuPausa
@@ -63,17 +83,68 @@ data EstadoAtual = MenuInicial OpcaoMenuInicial
                  | PerdeuJogo
     deriving (Show, Read)
 
+{-| Os tipos de dados 'Seed', 'Pontuacao', 'LinhaAtual', 'TempoDecorrido' e 'Imagens' correspondem, respetivamente: 
+à seed usada para atribuir aleatoriedade ao mapa, à pontuação atingida pelo jogador, à linha do mapa em que o jogador se encontra no momento, ao tempo decorrido desde o início do jogo e ao conjunto de 'Pictures'.
+
+@
 type Seed = Int
 type Pontuacao = Int
 type LinhaAtual = Int
 type TempoDecorrido = Int
 type Imagens = [Picture]
+@
+
+-}
+
+type Seed = Int
+type Pontuacao = Int
+type LinhaAtual = Int
+type TempoDecorrido = Int
+type Imagens = [Picture]
+
+{-| O tipo de dados 'World' junta 'EstadoAtual', '[Seed]', 'Jogo', 'LinhaAtual', 'Pontuacao', 'TempoDecorrido' e 'Imagens' para englobar todos os elementos que vão constituir o jogo.
+
+@
 type World = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido, Imagens)
+@
+
+-}
+
+type World = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido, Imagens)
+
+{-| O tipo de dados 'SaveData' é constituído pelos elementos que serão usados para criar o ficheiro para guardar o progresso no jogo.
+
+@
+type SaveData = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido)
+@
+
+-}
+
 type SaveData = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido)
 
+{-| A função 'janela' disponibiliza a janela onde será visualizado o jogo, com o tamanho de 1600 x 900 e posição no ecrã (0,0).
+
+@
+janela :: Display
+janela = InWindow "Crossy Road" (1600,900) (0,0)
+@
+
+-}
 
 janela :: Display
 janela = InWindow "Crossy Road" (1600,900) (0,0)
+
+{-| A função 'estadoInicial', juntamente com a função auxiliar 'estendeAte' devolve o estado inicial do jogo, em que se apresenta o menu inicial com a opção de novo jogo selecionada, e o mapa inicial já preparado para ser jogado.
+
+@
+estadoInicial :: Imagens -> [Seed] -> World
+estadoInicial imagens ls = (MenuInicial NovoJogo, ls, (Jogo (Jogador (8,5)) (estendeAte 5 ls (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
+                                                                                                      (Relva,[Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore]),
+                                                                                                      (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
+                                                                                                      (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])]))), 0, 0, 0, imagens)
+@
+
+-}
 
 estadoInicial :: Imagens -> [Seed] -> World
 estadoInicial imagens ls = (MenuInicial NovoJogo, ls, (Jogo (Jogador (8,5)) (estendeAte 5 ls (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
@@ -81,10 +152,38 @@ estadoInicial imagens ls = (MenuInicial NovoJogo, ls, (Jogo (Jogador (8,5)) (est
                                                                                                       (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
                                                                                                       (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])]))), 0, 0, 0, imagens)
 
+{-| A função 'estendeAte' é utilizada na função 'estadoInicial' para criar aleatoriamente as restantes 5 linhas do mapa inicial.
+
+@
+estendeAte :: Int -> [Seed] -> Mapa -> Mapa
+estendeAte 1 (s:ls) m = estendeMapa m s
+estendeAte n (s:ls) m = estendeAte (n-1) ls (estendeMapa m s)  
+@
+
+-}
+
 estendeAte :: Int -> [Seed] -> Mapa -> Mapa
 estendeAte 1 (s:ls) m = estendeMapa m s
 estendeAte n (s:ls) m = estendeAte (n-1) ls (estendeMapa m s)  
 
+{-| A função 'desenhaIO', juntamente com as funções auxiliares 'desenhaMapa', 'desenhaTerreno', 'desenhaObstaculo' e 'desenhaJogador', recebe os mundos possíveis, dependendo dos estados do 'data EstadoAtual', e desenha os elementos correspondentes apresentados na janela do jogo.
+
+@
+desenhaIO :: World -> IO Picture
+desenhaIO (MenuInicial NovoJogo, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 1), translate 0 50 (i !! 3),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Continuar, _, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1), translate 0 50 (i !! 2),translate 0 (-75) (i !! 5),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Sair, _, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1),translate 0 50 (i !! 2),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 7)]
+desenhaIO (ModoJogo, _, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, td, i) = return $ 
+    if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ [translate (-800) (330) (color white (text (show p)))])
+    else Pictures ([Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color white (text (show p)))])
+desenhaIO (MenuPausa Retomar, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 10),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravar, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 12),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravado, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 13),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 15)]
+desenhaIO (PerdeuJogo, _, _, _, p, _, i) = return $ Pictures ([fundoPerdeu, translate 0 (250) (i !! 16), translate 0 0 (i !! 17), translate (-50) (-200) (i !! 18)] ++ [translate (100) (-250) (color white (text (show p)))])
+@
+
+-}
 
 desenhaIO :: World -> IO Picture
 desenhaIO (MenuInicial NovoJogo, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 1), translate 0 50 (i !! 3),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 6)]
@@ -288,6 +387,66 @@ desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(3
 desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(360+(-100)*(fromIntegral y))),((((-790) + 100*(fromIntegral x)),(440+(-100)*(fromIntegral y)))),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),360+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-755)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y)),(((-755)+(100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-780)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-770)+(100)*(fromIntegral x)),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),390+(-100)*(fromIntegral y)),(((-720)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-790)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-730)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-730)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])]
 
+{-| A função 'eventoIO' atribui a cada evento as reações pretendidas, ou seja, ao pressionar das teclas direcionais e Enter, para cada estado possível. Devolve o resultado encapsulado no tipo IO.
+
+@
+eventoIO :: Event -> World -> IO World
+-- Menu Inicial
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (ModoJogo, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (MenuInicial Sair, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = return (MenuInicial Sair, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = carregaJogo (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) =  exitSuccess
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) = return (MenuInicial NovoJogo, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) = return (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = return (MenuInicial NovoJogo, seed, j, la, p, s, i)
+-- Perdeu Jogo
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, _, j, la, p, s, i) = do
+    seed1 <- randomIO
+    seed2 <- randomIO
+    seed3 <- randomIO
+    seed4 <- randomIO
+    seed5 <- randomIO
+    return (estadoInicial i [seed1, seed2, seed3, seed4, seed5])
+-- Modo Jogo
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, seed, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i)
+                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 > p = return (ModoJogo, seed, animaJogador j (Move Cima), la+1, p+1, s, i)
+                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 <= p = return (ModoJogo, seed, animaJogador j (Move Cima), la+1, p, s, i)
+                                                                        | otherwise = return (ModoJogo, seed, animaJogador j (Move Cima), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, seed, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i)
+                                                                          | variacaoDaOrdenada j (Move Baixo) /= 0 = return (ModoJogo, seed, animaJogador j (Move Baixo), la-1, p, s, i) 
+                                                                          | otherwise = return (ModoJogo, seed, animaJogador j (Move Baixo), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, seed, j, la, p, s, i) = 
+    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Move Esquerda), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, seed, j, la, p, s, i) = 
+    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Move Direita), la, p, s, i)
+eventoIO (EventKey (SpecialKey _) Up _ _) (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Parado), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (MenuPausa Retomar, seed, j, la, p, s, i)
+-- Menu Pausa
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (ModoJogo, seed,j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (MenuPausa Gravar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = guardaJogo (MenuPausa Gravado, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravado, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravado, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa VoltarMenuInicial, _, j, la, p, s, i) = do
+    seed1 <- randomIO
+    seed2 <- randomIO
+    seed3 <- randomIO
+    seed4 <- randomIO
+    seed5 <- randomIO
+    return (estadoInicial i [seed1, seed2, seed3, seed4, seed5])
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i) = return (MenuPausa Gravar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO _ (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Parado), la, p, s, i)
+eventoIO _ w = return w
+@
+
+-}
+
 eventoIO :: Event -> World -> IO World
 -- Menu Inicial
 eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (ModoJogo, seed, j, la, p, s, i)
@@ -342,6 +501,17 @@ eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa VoltarMenuInicial, 
 eventoIO _ (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Parado), la, p, s, i)
 eventoIO _ w = return w
 
+{-| A função 'tempoIO' é uma função executada a cada frame, que cria uma nova seed a cada chamada, e atribui essa seed como argumento à função pura 'tempo'. Devolve o resultado encapsulado no tipo IO, de forma a cumprir o tipo estabelecido (IO World).
+
+@
+tempoIO :: Float -> World -> IO World
+tempoIO n w = do
+    seed <- randomIO
+    return (tempo n seed w)
+@
+
+-}
+
 tempoIO :: Float -> World -> IO World
 tempoIO n w = do
     seed <- randomIO
@@ -381,16 +551,59 @@ tempo n seed (ModoJogo, s, (Jogo (Jogador (x,y)) m), la, p, td, i) =
                 else (ModoJogo, s, deslizaJogo seed (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
 tempo _ _ w = w
 
+{-| A função 'converteWorldParaSaveData' recebe dados do tipo 'World' e converte-os para dados do tipo 'SaveData' para poderem ser usados na função 'guardaJogo'. No processo retira as 'Imagens' contidas no 'World'.
+
+@
+converteWorldParaSaveData :: World -> SaveData
+converteWorldParaSaveData (m, seed, j, la, p, s, i) = (m, seed, j, la, p, s)
+@
+
+-}
+
 converteWorldParaSaveData :: World -> SaveData
 converteWorldParaSaveData (m, seed, j, la, p, s, i) = (m, seed, j, la, p, s)
 
-converteSaveDataParaWorld :: SaveData -> Imagens -> World
-converteSaveDataParaWorld (m, seed, j, la, p, s) i = (m, seed, j, la, p, s, i)
+{-| A função 'guardaJogo' escreve o conteúdo que recebe num ficheiro, de modo a guardar o progresso no jogo quando for chamada, com o auxílio da função 'converteWorldParaSaveData'.
+
+@
+guardaJogo :: World -> IO World
+guardaJogo w = do 
+    writeFile "crossyroad.sav" (show $ converteWorldParaSaveData w)
+    return w
+@
+
+-}
 
 guardaJogo :: World -> IO World
 guardaJogo w = do 
     writeFile "crossyroad.sav" (show $ converteWorldParaSaveData w)
     return w
+
+{-| A função 'converteSaveDataParaWorld' converte dados do tipo 'SaveData' para dados do tipo 'World', devolvendo também as 'Imagens' que devem estar incluídas no tipo 'World'. Esta função é usada na função 'carregaJogo'.
+
+@
+converteSaveDataParaWorld :: SaveData -> Imagens -> World
+converteSaveDataParaWorld (m, seed, j, la, p, s) i = (m, seed, j, la, p, s, i)
+@
+
+-}
+
+converteSaveDataParaWorld :: SaveData -> Imagens -> World
+converteSaveDataParaWorld (m, seed, j, la, p, s) i = (m, seed, j, la, p, s, i)
+
+
+{-| A função 'carregaJogo' verifica se existe algum ficheiro com o progresso de jogo guardado e, caso exista, lê-o e apresenta o jogo guardado, com o auxílio da função 'converteSaveDataParaWorld'.
+
+@
+carregaJogo :: World -> IO World 
+carregaJogo (m, seed, j, la, p, s, i) = do
+    fileExist <- doesFileExist "crossyroad.sav"
+    saved <- if fileExist then readFile "crossyroad.sav"
+                          else return (show (m, seed, j, la, p, s))
+    return (converteSaveDataParaWorld (read saved) i)
+@
+
+-}
 
 carregaJogo :: World -> IO World 
 carregaJogo (m, seed, j, la, p, s, i) = do
@@ -399,6 +612,19 @@ carregaJogo (m, seed, j, la, p, s, i) = do
                           else return (show (m, seed, j, la, p, s))
     return (converteSaveDataParaWorld (read saved) i)
 
+{-| A função 'removeJogoGuardado' elimina, caso exista, o ficheiro com progresso do jogo guardado, em caso de perder o jogo.
+
+@
+removeJogoGuardado :: World -> IO World
+removeJogoGuardado w = do 
+    fileExist <- doesFileExist "crossyroad.sav"
+    if fileExist then removeFile "crossyroad.sav"
+                 else return ()
+    return w
+@
+
+-}
+
 removeJogoGuardado :: World -> IO World
 removeJogoGuardado w = do 
     fileExist <- doesFileExist "crossyroad.sav"
@@ -406,23 +632,86 @@ removeJogoGuardado w = do
                  else return ()
     return w
 
+{-| A função 'verdeRelva' será usada para atribuir a cor @light green@ a alguns elementos do jogo.
+
+@
 verdeRelva :: Color
 verdeRelva = light green
+@
+
+-}
+
+verdeRelva :: Color
+verdeRelva = light green
+
+{-| A função 'cinzaEstrada' será usada para atribuir a cor @dark (dark (greyN 0.8))@ a determinados elementos do jogo.
+
+@
+cinzaEstrada :: Color
+cinzaEstrada = dark (dark (greyN 0.8))
+@
+
+-}
 
 cinzaEstrada :: Color
 cinzaEstrada = dark (dark (greyN 0.8))
 
+{-| A função 'azulRio' será usada para atribuir a cor @light azure@ a certos elementos do jogo.
+
+@
 azulRio :: Color
 azulRio = light azure
+@
+
+-}
+
+azulRio :: Color
+azulRio = light azure
+
+{-| A função 'castanhoTronco' será usada para atribuir a cor personalizada @makeColor 0.4 0.2 0 0.9@ a alguns elementos do jogo.
+
+@
+castanhoTronco :: Color
+castanhoTronco = (makeColor 0.4 0.2 0 0.9)
+@
+
+-}
 
 castanhoTronco :: Color
 castanhoTronco = (makeColor 0.4 0.2 0 0.9)
 
+{-| A função 'castanhoTroncoClaro' será usada para atribuir a cor @light castanhoTronco@  a alguns elementos do jogo.
+
+@
+castanhoTroncoClaro :: Color
+castanhoTroncoClaro = light castanhoTronco
+@
+
+-}
+
 castanhoTroncoClaro :: Color
 castanhoTroncoClaro = light castanhoTronco
 
+{-| A função 'fundo' atribui a cor @light green@ ao fundo da janela, através da função 'verdeRelva'.
+
+@
 fundo :: Picture
 fundo = color verdeRelva (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
+@
+
+-}
+
+fundo :: Picture
+fundo = color verdeRelva (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
+
+{-| A função 'fundoPerdeu' atribui a cor @light (light red)@ ao fundo do ecrã do modo PerdeuJogo.
+
+@
+fundoPerdeu :: Picture
+fundoPerdeu = color (light red) (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
+@
+
+-}
 
 fundoPerdeu :: Picture
 fundoPerdeu = color (light red) (polygon [((-800),(-450)),((-800),450),(800,450),(800,(-450))])
