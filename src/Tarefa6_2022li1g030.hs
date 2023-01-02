@@ -99,14 +99,83 @@ desenhaIO (MenuPausa Gravado, _, _, _, _, _, i) = return $ Pictures [fundo,trans
 desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 15)]
 desenhaIO (PerdeuJogo, _, _, _, p, _, i) = return $ Pictures ([fundoPerdeu, translate 0 (250) (i !! 16), translate 0 0 (i !! 17), translate (-50) (-200) (i !! 18)] ++ [translate (100) (-250) (color white (text (show p)))])
 
-desenhaMapa :: Imagens -> Int -> Mapa -> [Picture]
+{- |A função 'desenhaMapa', que recebe imagens (lista de pictures), um número e um mapa e que retorna uma lista de pictures, desenha o mapa do jogo do world na tela do computador, na
+janela do jogo que aparece no computador. 
+
+Para desenharmos o mapa precisamos das imagens de formato bitmapa, precisamos de um mapa e do número da linha do mapa que iremos começar por desenhar (linha 0). Depois iremos desenhar as
+outras linhas até apenas sobrar a lista vazia no mapa: desenhamos o mapa todo logo a função irá retornar lista vazia nesse momento.
+
+Para desenharmos o mapa presisamos de desenhar os terrenos e os obstáculos de cada linha do mapa. Para desenhar os terrenos usamos a função auxiliar 'desenhaTerreno' e para desenhar os
+obstáculos usamos a função auxiliar 'desenhaObstaculos'.
+
+Assim, a função 'desenhaMapa' pode ser definida da seguinte forma:
+
+@
 desenhaMapa i p (Mapa 16 (h:t)) = (desenhaTerreno i p h) ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa i (p+1) (Mapa 16 t))
+desenhaMapa  i p (Mapa 16 []) = []
+@
+
+-}
+
+desenhaMapa :: Imagens -> Int -> Mapa -> [Picture]
+desenhaMapa i p (Mapa 16 (h:t)) = (desenhaTerreno i p (fst h)) ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa i (p+1) (Mapa 16 t))
 desenhaMapa i p (Mapa 16 []) = []
 
-desenhaTerreno :: Imagens -> Int -> (Terreno,[Obstaculo]) -> [Picture]
-desenhaTerreno i p (ter,(h:t)) = case ter of Rio _ -> [color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
-                                             Estrada _ -> [translate 0 (400 + (-100)*(fromIntegral p)) (head i)]
-                                             Relva -> [color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+{- |A função 'desenhaTerreno', que recebe imagens (lista de pictures), um número e um par de terreno e de lista de obstáculos e que retorna uma lista de pictures, desenha o terreno de uma
+linha. 
+
+Para desenharmos o terreno de uma linha presisamos das imagens de formato bitmapa (mais em particular a primeira picture da lista, "estrada", que representa o terreno Estrada), precisamos
+do número da linha do mapa do terreno (para saber onde iremos colocar as pictures na tela do computador) e precisamos do terreno para sabermos se é uma estrada (uma picture), uma relva 
+(outra picture) ou um rio (outra picture).
+
+Assim, para cada terreno apresentamos a picture correspondente que se irá posicionar no mapa em função do número da linha. 
+
+Assim, a função 'desenhaTerreno' pode ser definida da seguinte forma:
+
+@
+desenhaTerreno i p ter = case ter of Rio _ -> [color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+                                     Estrada _ -> [translate 0 (400 + (-100)*(fromIntegral p)) (head i)]
+                                     Relva -> [color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+@
+
+-}
+
+desenhaTerreno :: Imagens -> Int -> Terreno -> [Picture]
+desenhaTerreno i p ter = case ter of Rio _ -> [color azulRio (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+                                     Estrada _ -> [translate 0 (400 + (-100)*(fromIntegral p)) (head i)]
+                                     Relva -> [color verdeRelva (polygon [((-800),350+(-100)*(fromIntegral p)),((-800),450+(-100)*(fromIntegral p)),(800,450+(-100)*(fromIntegral p)),(800,350+(-100)*(fromIntegral p))])]
+
+{- |A função 'desenhaObstaculo', que recebe dois número (a abcissa e a ordenada do obstáculo) e um par de terreno e de lista de obstáculos e que retorna uma lista de pictures, desenha os
+obstáculos de uma linha.
+
+Se o terreno for Relva, se o primeiro obstáculo for Nenhum não será adicionada nenhuma picture ([]) e se o primeiro obstáculo for Arvore será adicionada uma picture de uma árvore nas 
+coordenadas do obstáculo. Fazemos isto para todos os obstáculos até a lista dos obstáculos ficar vazia.
+
+Se o terreno for Estrada e a velocidade for positiva ou nula, então iremos chamar a função auxiliar 'desenhaCarrosDireita' (quando a velocidade é positiva os carros movem-se para a direita
+, logo estão virados para a direita).
+
+Se o terreno for Estrada e a velocidade for negativa, então iremos chamar a função auxiliar 'desenhaCarrosEsquerda' (quando a velocidade é negativa os carros movem-se para a esquerda, logo
+estão virados para a esquerda).
+
+Se o terreno for Rio e a velocidade for positiva ou nula, então iremos chamar a função auxiliar 'desenhaTroncosDireita' (quando a velocidade é positiva os troncos movem-se para a direita
+, logo estão virados para a direita).
+
+Se o terreno for Rio e a velocidade for negativa, então iremos chamar a função auxiliar 'desenhaTroncosEsquerda' (quando a velocidade é negativa os troncos movem-se para a esquerda, logo
+estão virados para a esquerda).
+
+Assim, a função 'desenhaObstaculo' pode ser definida da seguinte forma:
+
+@
+desenhaObstaculo n1 n2 (Estrada v,(h:t)) | v>=0 = desenhaCarrosDireita h n1 n2 (h:t)
+                                         | v<0 = desenhaCarrosEsquerda (last t) n1 n2 (h:t)
+desenhaObstaculo n1 n2 (Rio v,(h:t)) | v>=0 = desenhaTroncosDireita h n1 n2 (h:t)
+                                     | v<0 = desenhaTroncosEsquerda (last t) n1 n2 (h:t)
+desenhaObstaculo n1 n2 (Relva,[]) = []         
+desenhaObstaculo n1 n2 (Relva,(h:t)) = case h of Nenhum -> (desenhaObstaculo (n1 + 1) n2 (Relva,t))
+                                                 Arvore -> [color (dark (dark green)) (polygon [(((-795)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-795)+(100)*(fromIntegral n1)),445+(-100)*(fromIntegral n2)),(((-705)+(100*(fromIntegral n1))),445+(-100)*(fromIntegral n2)),(((-705)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2))])] ++ [color (dark castanhoTronco) (polygon [(((-780)+(100*(fromIntegral n1))),355+(-100)*(fromIntegral n2)),(((-770)+(100)*(fromIntegral n1)),390+(-100)*(fromIntegral n2)),(((-730)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-720)+(100*(fromIntegral n1))),355+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (Relva,t))
+@
+
+-}
 
 desenhaObstaculo :: Int -> Int -> (Terreno,[Obstaculo]) -> [Picture]
 desenhaObstaculo n1 n2 (Estrada v,(h:t)) | v>=0 = desenhaCarrosDireita h n1 n2 (h:t)
@@ -117,6 +186,22 @@ desenhaObstaculo n1 n2 (Relva,[]) = []
 desenhaObstaculo n1 n2 (Relva,(h:t)) = case h of Nenhum -> (desenhaObstaculo (n1 + 1) n2 (Relva,t))
                                                  Arvore -> [color (dark (dark green)) (polygon [(((-795)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-795)+(100)*(fromIntegral n1)),445+(-100)*(fromIntegral n2)),(((-705)+(100*(fromIntegral n1))),445+(-100)*(fromIntegral n2)),(((-705)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2))])] ++ [color (dark castanhoTronco) (polygon [(((-780)+(100*(fromIntegral n1))),355+(-100)*(fromIntegral n2)),(((-770)+(100)*(fromIntegral n1)),390+(-100)*(fromIntegral n2)),(((-730)+(100*(fromIntegral n1))),390+(-100)*(fromIntegral n2)),(((-720)+(100*(fromIntegral n1))),355+(-100)*(fromIntegral n2))])] ++ (desenhaObstaculo (n1 + 1) n2 (Relva,t))
 
+{- |A função 'desenhaCarrosDireita', que recebe um obstáculo, dois números (abcissa e ordenada do obstáculo) e uma lista de obstáculos e que retorna uma lista de pictures, desenha os 
+carros virados para a direita, os carros que se movimentam para a direita.
+
+Assim, a função 'desenhaCarrosDireita' pode ser definida da seguinte forma:
+
+@
+desenhaCarrosDireita o n1 n2 [] = []
+desenhaCarrosDireita o n1 n2 (h:t) = case h of Nenhum -> (desenhaCarrosDireita o (n1 + 1) n2 t)
+                                               Carro | t /= [] && head t /= Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color white (polygon [(((-740)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
+                                                     | t /= [] && head t == Carro -> [color (dark blue) (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
+                                                     | t == [] && o /= Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color white (polygon [(((-740)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
+                                                     | t == [] && o == Carro -> [color (dark blue) (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
+@
+
+-}
+
 desenhaCarrosDireita :: Obstaculo -> Int -> Int -> [Obstaculo] -> [Picture]
 desenhaCarrosDireita o n1 n2 [] = []
 desenhaCarrosDireita o n1 n2 (h:t) = case h of Nenhum -> (desenhaCarrosDireita o (n1 + 1) n2 t)
@@ -125,26 +210,81 @@ desenhaCarrosDireita o n1 n2 (h:t) = case h of Nenhum -> (desenhaCarrosDireita o
                                                      | t == [] && o /= Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color white (polygon [(((-740)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),430+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
                                                      | t == [] && o == Carro -> [color (dark blue) (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosDireita o (n1 + 1) n2 t)
 
+{- |A função 'desenhaCarrosEsquerda', que recebe um obstáculo, dois números (abcissa e ordenada do obstáculo) e uma lista de obstáculos e que retorna uma lista de pictures, desenha os 
+carros virados para a esquerda, os carros que se movimentam para a esquerda.
+
+Assim, a função 'desenhaCarrosEsquerda' pode ser definida da seguinte forma:
+
+@
+desenhaCarrosEsquerda o n1 n2 [] = []
+desenhaCarrosEsquerda o n1 n2 (h:t) = case h of Nenhum -> (desenhaCarrosEsquerda h (n1 + 1) n2 t)
+                                                Carro | o /= Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color white (polygon [(((-790)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),430+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),430+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosEsquerda h (n1 + 1) n2 t)
+                                                      | o == Carro -> [color (dark blue) (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosEsquerda h (n1 + 1) n2 t)
+@
+
+-}
+
 desenhaCarrosEsquerda :: Obstaculo -> Int -> Int -> [Obstaculo] -> [Picture]
 desenhaCarrosEsquerda o n1 n2 [] = []
 desenhaCarrosEsquerda o n1 n2 (h:t) = case h of Nenhum -> (desenhaCarrosEsquerda h (n1 + 1) n2 t)
                                                 Carro | o /= Carro -> [color red (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color white (polygon [(((-790)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),430+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),430+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),400+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosEsquerda h (n1 + 1) n2 t)
                                                       | o == Carro -> [color (dark blue) (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-790)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-760)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ [color black (polygon [(((-740)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2)),(((-740)+(100)*(fromIntegral n1)),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),380+(-100)*(fromIntegral n2)),(((-710)+(100*(fromIntegral n1))),340+(-100)*(fromIntegral n2))])] ++ (desenhaCarrosEsquerda h (n1 + 1) n2 t)
 
+{- |A função 'desenhaTroncosDireita', que recebe um obstáculo, dois números (abcissa e ordenada do obstáculo) e uma lista de obstáculos e que retorna uma lista de pictures, desenha os 
+troncos virados para a direita, os troncos que se movimentam para a direita.
+
+Assim, a função 'desenhaTroncosDireita' pode ser definida da seguinte forma:
+
+@
+desenhaTroncosDireita o n1 n2 [] = []
+desenhaTroncosDireita o n1 n2 (h:t) = case h of Nenhum -> (desenhaTroncosDireita o (n1 + 1) n2 t)
+                                                Tronco | t /= [] && head t /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-730)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-730)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+                                                       | t /= [] && head t == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+                                                       | t == [] && o /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-730)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-730)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+                                                       | t == [] && o == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+@
+
+-}
+
 desenhaTroncosDireita :: Obstaculo -> Int -> Int -> [Obstaculo] -> [Picture]
 desenhaTroncosDireita o n1 n2 [] = []
 desenhaTroncosDireita o n1 n2 (h:t) = case h of Nenhum -> (desenhaTroncosDireita o (n1 + 1) n2 t)
                                                 Tronco | t /= [] && head t /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-730)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-730)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
                                                        | t /= [] && head t == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
-                                                       | t == [] && o /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-730)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-730)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+                                                       | t == [] && o /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-730)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-730)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
                                                        | t == [] && o == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosDireita o (n1 + 1) n2 t)
+
+{- |A função 'desenhaTroncosEsquerda', que recebe um obstáculo, dois números (abcissa e ordenada do obstáculo) e uma lista de obstáculos e que retorna uma lista de pictures, desenha os 
+troncos virados para a esquerda, os troncos que se movimentam para a esquerda.
+
+Assim, a função 'desenhaTroncosEsquerda' pode ser definida da seguinte forma:
+
+@
+desenhaTroncosEsquerda o n1 n2 [] = []
+desenhaTroncosEsquerda o n1 n2 (h:t) = case h of Nenhum -> (desenhaTroncosEsquerda h (n1 + 1) n2 t)
+                                                 Tronco | o /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosEsquerda h (n1 + 1) n2 t)
+                                                        | o == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosEsquerda h (n1 + 1) n2 t)
+@
+
+-}
 
 desenhaTroncosEsquerda :: Obstaculo -> Int -> Int -> [Obstaculo] -> [Picture]
 desenhaTroncosEsquerda o n1 n2 [] = []
 desenhaTroncosEsquerda o n1 n2 (h:t) = case h of Nenhum -> (desenhaTroncosEsquerda h (n1 + 1) n2 t)
                                                  Tronco | o /= Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ [color castanhoTroncoClaro (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-770)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosEsquerda h (n1 + 1) n2 t)
                                                         | o == Tronco -> [color castanhoTronco (polygon [(((-800)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2)),(((-800)+(100)*(fromIntegral n1)),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),440+(-100)*(fromIntegral n2)),(((-700)+(100*(fromIntegral n1))),360+(-100)*(fromIntegral n2))])] ++ (desenhaTroncosEsquerda h (n1 + 1) n2 t)
-                                                            
+
+{- |A função 'desenhaJogador', que recebe dois números inteiros (a abcissa e a ordenada do jogador) e que retorna uma lista de pictures, desenha o jogador no mapa. Nesta função, desenhamos
+uma galinha que será posicionada no mapa em função da abcissa e ordenada do jogador de um jogo de um world.
+
+Assim, a função 'desenhaJogador' pode ser definida da seguinte forma:
+
+@
+desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(360+(-100)*(fromIntegral y))),((((-790) + 100*(fromIntegral x)),(440+(-100)*(fromIntegral y)))),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),360+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-755)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y)),(((-755)+(100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-780)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-770)+(100)*(fromIntegral x)),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),390+(-100)*(fromIntegral y)),(((-720)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-790)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-730)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-730)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])]
+@
+
+-}            
+
 desenhaJogador :: Int -> Int -> [Picture]
 desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(360+(-100)*(fromIntegral y))),((((-790) + 100*(fromIntegral x)),(440+(-100)*(fromIntegral y)))),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),360+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-755)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y)),(((-755)+(100)*(fromIntegral x)),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),450+(-100)*(fromIntegral y)),(((-745)+(100*(fromIntegral x))),410+(-100)*(fromIntegral y))])] ++ [color red (polygon [(((-780)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y)),(((-770)+(100)*(fromIntegral x)),390+(-100)*(fromIntegral y)),(((-730)+(100*(fromIntegral x))),390+(-100)*(fromIntegral y)),(((-720)+(100*(fromIntegral x))),350+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-790)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-790)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-770)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])] ++ [color black (polygon [(((-730)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y)),(((-730)+(100)*(fromIntegral x)),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),440+(-100)*(fromIntegral y)),(((-710)+(100*(fromIntegral x))),420+(-100)*(fromIntegral y))])]
 
@@ -207,14 +347,38 @@ tempoIO n w = do
     seed <- randomIO
     return (tempo n seed w)
 
-tempo :: Float -> Int -> World -> World
-tempo n seedt (ModoJogo, seed, (Jogo (Jogador (x,y)) m), la, p, td, i) = 
+{- |A função 'tempo', que recebe um float (que representa os segundos passados), um número inteiro (um número aleátorio) e um world e que retorna um world, é a função que muda o world em
+função do tempo, em função dos segundos que se passaram. Como o terceiro parâmetro da função playIO é 1, ou seja, como o frame rate é 1, isto significa que a função 'tempo' será chamada a 
+cada um novo segundo, ou seja, de um em um segundo.
+
+Assim, a cada segundo a função 'tempo' verifica se o jogo terminou através da função 'jogoTerminou' e se tal aconteceu retorna um world em que o EstadoAtual é PerdeuJogo e em que o
+TempoDecorrido aumenta um valor (passou um segundo). Se o jogo não tiver terminado, a função tempo irá animar o jogo do world ou irá deslizar e animar o jogo do world. Se passou um número
+par de segundos, ou seja, se mod td 2 é igual a 0, então iremos apenas animar o jogo. Se passou um número ímpar de segundos, ou seja, se mod td 2 é desigual a 0, então iremos deslizar e
+animar o jogo. Deste modo, animamos o jogo a cada um segundo e deslizamos o jogo a cada dois segundos. 
+
+Assim, a função 'tempo' pode ser definida da seguinte forma:
+
+@
+tempo n seed (ModoJogo, s, (Jogo (Jogador (x,y)) m), la, p, td, i) = 
     if jogoTerminou (Jogo (Jogador (x,y)) m) 
-        then (PerdeuJogo, seed, (Jogo (Jogador (x,y)) m), la, p, td+1, i)
+        then (PerdeuJogo, s, (Jogo (Jogador (x,y)) m), la, p, td+1, i)
         -- deslizar jogo apenas quando o tempo decorrido é ímpar
         else if mod td 2 == 0 
-                then (ModoJogo, seed, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1, i)
-                else (ModoJogo, seed, deslizaJogo seedt (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
+                then (ModoJogo, s, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1, i)
+                else (ModoJogo, s, deslizaJogo seed (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
+tempo _ _ w = w
+@
+
+-}
+
+tempo :: Float -> Int -> World -> World
+tempo n seed (ModoJogo, s, (Jogo (Jogador (x,y)) m), la, p, td, i) = 
+    if jogoTerminou (Jogo (Jogador (x,y)) m) 
+        then (PerdeuJogo, s, (Jogo (Jogador (x,y)) m), la, p, td+1, i)
+        -- deslizar jogo apenas quando o tempo decorrido é ímpar
+        else if mod td 2 == 0 
+                then (ModoJogo, s, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1, i)
+                else (ModoJogo, s, deslizaJogo seed (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
 tempo _ _ w = w
 
 converteWorldParaSaveData :: World -> SaveData
