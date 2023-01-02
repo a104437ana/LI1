@@ -11,16 +11,13 @@ module Tarefa2_2022li1g030 (
 -- ** Funções principais
 gera, estendeMapa,
 -- ** Funções auxiliares
-proximosTerrenosValidos, geraTerreno, rioAnterior, velocRioAnterior, geraVelocidade, adicionaVelocidade, proximosObstaculosValidos, contaExtremos, geraObstaculo
+proximosTerrenosValidos, geraTerreno, rioAnterior, velocRioAnterior, geraVelocidade, adicionaVelocidade, proximosObstaculosValidos, contaExtremos, geraObstaculo, velocidade_max, adicionaObstaculo, escolherIndice, substituirEm, eRelva, eRio, numeroNenhum, calcProxVelPossivel, proximosObstaculosRio, proximosObstaculosEstrada, proximosObstaculosRelva
 ) where
 
 import LI12223
 
 import System.Random
 import Data.List
-
-velocidade_max :: Int
-velocidade_max = 3
 
 {- | A função 'gera' devolve números inteiros aleatoriamente, para serem utilizados em funções posteriores de modo a criar aleatoriedade na criação das novas linhas do mapa.
 
@@ -53,7 +50,6 @@ estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                               in Mapa n ((terreno, obstaculos):l)
 @
 
-Para esta função, vamos usar duas funções auxiliares principais, a 'proximosTerrenosValidos' e a 'proximosObstaculosValidos', e outras funções auxiliares que a seguir se descrevem.
 -}
 
 estendeMapa :: Mapa -> Int -> Mapa
@@ -65,7 +61,20 @@ estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   obstaculos = adicionaObstaculo (Mapa n l) seed terreno
                               in Mapa n ((terreno, obstaculos):l)
 
-{- |A função 'adicionaObstaculo', que recebe um mapa, uma seed e um terreno e que retorna uma lista de obstáculo, 
+{-| A função 'velocidade_max' atribui uma velocidade máxima que será utilizada no movimento dos obstáculos.
+
+@
+velocidade_max :: Int
+velocidade_max = 3
+@
+
+-}
+
+velocidade_max :: Int
+velocidade_max = 3
+
+
+{- |A função 'adicionaObstaculo', que recebe um mapa, uma seed e um terreno e que retorna uma lista de obstáculos, para além de criar uma lista de obstáculos que será usada na nova linha do mapa, também permite que exista um caminho possível para o jogador percorrer no caso de terrenos de @Relva@ contíguos, colocando obrigatoriamente @Nenhum@ à frente de um @Nenhum@ da linha anterior escolhido aleatoriamente. 
 
 Assim, a função 'adicionaObstaculo' pode ser definida da seguinte forma:
 
@@ -82,7 +91,7 @@ adicionaObstaculo (Mapa n ((t,lo):_)) seed terreno = let lobst = geraObstaculo (
                                                      in if eRelva terreno && eRelva t then substituirEm (escolherIndice seed (elemIndices Nenhum lo)) Nenhum lobst
                                                                                       else lobst
 
-{- |A função 'escolherIndice', que recebe uma seed e uma lista e que retorna um número inteiro,
+{- |A função 'escolherIndice', que recebe uma seed e uma lista e que retorna um número inteiro, seleciona aleatoriamente um índice de uma lista, que será usado na função 'adicionaObstaculo' para colocar um obstáculo do tipo @Nenhum@ nessa posição correspondente na lista de obstáculos.
 
 Assim, a função 'escolherIndice' pode ser definida da seguinte forma:
 
@@ -99,7 +108,7 @@ escolherIndice seed l = let rn = head (gera seed 1)
                             ri = mod rn (length l)
                         in l !! ri
 
-{- |A função 'substituirEm', que recebe um número inteiro (abcissa), um obstáculo e uma lista de obstáculos e retorna uma lista de obstáculos,
+{- |A função 'substituirEm', que recebe um número inteiro (abcissa), um obstáculo e uma lista de obstáculos e retorna uma lista de obstáculos, vai permitir colocar um obstáculo à escolha no lugar de outro numa lista de obstáculos.
 
 Assim, a função 'substituirEm' pode ser definida da seguinte forma:
 
@@ -116,7 +125,7 @@ substituirEm x obst [] = []
 substituirEm 0 obst (h:t) = obst:t
 substituirEm x obst (h:t) = h:(substituirEm (x-1) obst t)
 
-{- |A função 'eRelva', que recebe um terreno e retorna um bool,
+{- |A função 'eRelva', que recebe um terreno e retorna um bool, verifica se um terreno é do tipo @Relva@.
 
 Assim, a função 'eRelva' pode ser definida da seguinte forma:
 
@@ -131,7 +140,7 @@ eRelva :: Terreno -> Bool
 eRelva Relva = True
 eRelva _ = False
 
-{- |A função 'eRio', que recebe um terreno e retorna um bool,
+{- |A função 'eRio', que recebe um terreno e retorna um bool,verifica se um terreno é do tipo @Rio@.
 
 Assim, a função 'eRio' pode ser definida da seguinte forma:
 
@@ -146,7 +155,7 @@ eRio :: Terreno -> Bool
 eRio (Rio _) = True
 eRio _ = False
 
-{- |A função 'calcProxVelPossivel', que recebe uma lista de pares de terreno e de lista de obstáculos e um terreno e que retorna uma lista de velocidades,
+{- |A função 'calcProxVelPossivel', que recebe uma lista de pares de terreno e de lista de obstáculos e um terreno e que retorna uma lista de velocidades, vai calcular as possibilidades passíveis de serem usadas para a velocidade do próximo terreno.
 
 Assim, a função 'calcProxVelPossivel' pode ser definida da seguinte forma:
 
@@ -329,7 +338,7 @@ proximosObstaculosValidos n (t,l)
                                            else [Nenhum]
                     Relva -> [Nenhum, Arvore]
 
-{- | A função 'numeroNenhum', que recebe uma lista de obstáculos e retorna um número inteiro, 
+{- | A função 'numeroNenhum', que recebe uma lista de obstáculos e retorna um número inteiro, calcula o número de obstáculos do tipo @Nenhum@ numa lista de obstáculos.
 
 Assim, a função 'numeroNenhum' pode ser definida da seguinte forma:
 
@@ -346,7 +355,7 @@ numeroNenhum [] = 0
 numeroNenhum (h:t) | h == Nenhum = 1 + numeroNenhum t
                    | otherwise = numeroNenhum t
 
-{- | A função 'proximosObstaculosRio', que recebe e retorna uma lista de obstáculos,
+{- | A função 'proximosObstaculosRio', que recebe e retorna uma lista de obstáculos, define os próximos obstáculos que podem ser usados num terreno do tipo @Rio@, tendo em atenção o comprimento máximo dos obstáculos do tipo @Tronco@, que deve ser 5.
 
 Assim, a função 'proximosObstaculosRio' pode ser definida da seguinte forma:
 
@@ -367,7 +376,7 @@ proximosObstaculosRio l = if not (elem Tronco l) then [Tronco]
                                                       in if inicio + fim < 5 then [Nenhum, Tronco]
                                                                              else [Nenhum]
 
-{- | A função 'proximosObstaculosEstrada', que recebe e retorna uma lista de obstáculos,
+{- | A função 'proximosObstaculosEstrada', que recebe e retorna uma lista de obstáculos, define os próximos obstáculos que podem ser usados num terreno do tipo @Estrada@, tendo em atenção o comprimento máximo dos obstáculos do tipo @Carro@, que deve ser 3.
 
 Assim, a função 'proximosObstaculosEstrada' pode ser definida da seguinte forma:
 
@@ -388,7 +397,7 @@ proximosObstaculosEstrada l = if not (elem Carro l) then [Carro]
                                                          in if inicio + fim < 3 then [Nenhum, Carro]
                                                                                  else [Nenhum]
 
-{- | A função 'proximosObstaculosRelva', que recebe e retorna uma lista de obstáculos,
+{- | A função 'proximosObstaculosRelva', que recebe e retorna uma lista de obstáculos, define os próximos obstáculos que podem ser usados num terreno do tipo @Relva@.
 
 Assim, a função 'proximosObstaculosRelva' pode ser definida da seguinte forma:
 
