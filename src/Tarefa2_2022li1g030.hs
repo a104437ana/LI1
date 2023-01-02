@@ -38,21 +38,18 @@ gera seed n = take n $ randoms (mkStdGen seed)
 
 No caso de ainda não existir nenhuma linha no mapa, isto é, l = [], a função 'estendeMapa' gera a primeira linha.
 
-O argumento @seed@ é um inteiro aleatório (no intervalo @[0, 100]@), usado para acrescentar pseudo-aleatoriedade à geração da nova linha.
+O argumento @seed@ é um inteiro aleatório usado para acrescentar pseudo-aleatoriedade à geração da nova linha.
 
 Esta função pode ser definida da seguinte forma: 
 
 @
+estendeMapa :: Mapa -> Int -> Mapa
 estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   t0 = geraTerreno seed ptv
-                                  va = if t0 == Rio 0 && rioAnterior l then velocRioAnterior l
-                                                                       else 0
-                                  lvp = if va < 0 then [0..(n-1)]
-                                                  else if va > 0 then [-(n-1)..0]
-                                                                 else [-(n-1)..(n-1)]
+                                  lvp = calcProxVelPossivel l t0
                                   velocidade = geraVelocidade seed lvp
                                   terreno = adicionaVelocidade t0 velocidade
-                                  obstaculos = geraObstaculo (gera seed n) n (terreno, [])
+                                  obstaculos = adicionaObstaculo (Mapa n l) seed terreno
                               in Mapa n ((terreno, obstaculos):l)
 @
 
@@ -68,28 +65,101 @@ estendeMapa (Mapa n l) seed = let ptv = proximosTerrenosValidos (Mapa n l)
                                   obstaculos = adicionaObstaculo (Mapa n l) seed terreno
                               in Mapa n ((terreno, obstaculos):l)
 
+{- |A função 'adicionaObstaculo', que recebe um mapa, uma seed e um terreno e que retorna uma lista de obstáculo, 
+
+Assim, a função 'adicionaObstaculo' pode ser definida da seguinte forma:
+
+@
+adicionaObstaculo (Mapa n ((t,lo):_)) seed terreno = let lobst = geraObstaculo (gera seed n) n (terreno, [])
+                                                     in if eRelva terreno && eRelva t then substituirEm (escolherIndice seed (elemIndices Nenhum lo)) Nenhum lobst
+                                                                                      else lobst
+@
+
+-}
+
 adicionaObstaculo :: Mapa -> Int -> Terreno -> [Obstaculo]
 adicionaObstaculo (Mapa n ((t,lo):_)) seed terreno = let lobst = geraObstaculo (gera seed n) n (terreno, [])
                                                      in if eRelva terreno && eRelva t then substituirEm (escolherIndice seed (elemIndices Nenhum lo)) Nenhum lobst
                                                                                       else lobst
+
+{- |A função 'escolherIndice', que recebe uma seed e uma lista e que retorna um número inteiro,
+
+Assim, a função 'escolherIndice' pode ser definida da seguinte forma:
+
+@
+escolherIndice seed l = let rn = head (gera seed 1)
+                            ri = mod rn (length l)
+                        in l !! ri
+@
+
+-}
 
 escolherIndice :: Int -> [Int] -> Int
 escolherIndice seed l = let rn = head (gera seed 1)
                             ri = mod rn (length l)
                         in l !! ri
 
+{- |A função 'substituirEm', que recebe um número inteiro (abcissa), um obstáculo e uma lista de obstáculos e retorna uma lista de obstáculos,
+
+Assim, a função 'substituirEm' pode ser definida da seguinte forma:
+
+@
+substituirEm x obst [] = []
+substituirEm 0 obst (h:t) = obst:t
+substituirEm x obst (h:t) = h:(substituirEm (x-1) obst t)
+@
+
+-}
+
 substituirEm :: Int -> Obstaculo -> [Obstaculo] -> [Obstaculo]
 substituirEm x obst [] = []
 substituirEm 0 obst (h:t) = obst:t
 substituirEm x obst (h:t) = h:(substituirEm (x-1) obst t)
 
+{- |A função 'eRelva', que recebe um terreno e retorna um bool,
+
+Assim, a função 'eRelva' pode ser definida da seguinte forma:
+
+@
+eRelva Relva = True
+eRelva _ = False
+@
+
+-}
+
 eRelva :: Terreno -> Bool
 eRelva Relva = True
 eRelva _ = False
 
+{- |A função 'eRio', que recebe um terreno e retorna um bool,
+
+Assim, a função 'eRio' pode ser definida da seguinte forma:
+
+@
+eRio (Rio _) = True
+eRio _ = False
+@
+
+-}
+
 eRio :: Terreno -> Bool
 eRio (Rio _) = True
 eRio _ = False
+
+{- |A função 'calcProxVelPossivel', que recebe uma lista de pares de terreno e de lista de obstáculos e um terreno e que retorna uma lista de velocidades,
+
+Assim, a função 'calcProxVelPossivel' pode ser definida da seguinte forma:
+
+@
+calcProxVelPossivel l t0 = let va = if eRio t0 && rioAnterior l then velocRioAnterior l
+                                                                else 0
+                               lvp = if va < 0 then [1..velocidade_max]
+                                               else if va > 0 then [(-velocidade_max)..(-1)]
+                                                              else [(-velocidade_max)..(-1)] ++ [1..velocidade_max]
+                           in lvp
+@
+
+-}
 
 calcProxVelPossivel :: [(Terreno,[Obstaculo])] -> Terreno -> [Velocidade]
 calcProxVelPossivel l t0 = let va = if eRio t0 && rioAnterior l then velocRioAnterior l
@@ -101,6 +171,8 @@ calcProxVelPossivel l t0 = let va = if eRio t0 && rioAnterior l then velocRioAnt
 
 {- | A função 'proximosTerrenosValidos' devolve uma lista dos terrenos passíveis de ser utilizados numa próxima linha do mapa, a partir de uma ou mais linhas anteriores.
 Aqui podemos limitar a quantidade de terrenos contíguos de cada tipo, com um máximo de 4 rios seguidos, e 5 estradas ou relvas seguidas.
+
+Assim, a função 'proximosTerrrenosValidos' pode ser definida da seguinte forma:
 
 @
 proximosTerrenosValidos (Mapa _ ((Rio _, _):(Rio _, _):(Rio _, _):(Rio _, _):t)) = [Estrada 0, Relva]
@@ -121,6 +193,8 @@ proximosTerrenosValidos _ = [Rio 0, Estrada 0, Relva]
 {- | A função 'geraTerreno' cria, com base em aleatórios devolvidos pela função 'gera' e nas possibilidades oferecidas pela função 'proximosTerrenosValidos', 
 um terreno que será utilizado numa próxima linha do mapa.
 
+Assim, a função 'geraTerreno' pode ser definida da seguinte forma:
+
 @
 geraTerreno seed l = let rn = head (gera seed 1)
                          ri = mod rn (length l)
@@ -137,6 +211,8 @@ geraTerreno seed l = let rn = head (gera seed 1)
 
 {- | A função 'rioAnterior' será usada na função 'estendeMapa' para verificar, no caso de a função 'geraTerreno' gerar Rio para a nova linha, se a linha prévia mais recente do mapa usa o terreno @Rio _@.
 
+Assim, a função 'rioAnterior' pode ser definida da seguinte forma:
+
 @
 rioAnterior ((Rio _,_):_) = True
 rioAnterior _ = False
@@ -150,6 +226,8 @@ rioAnterior _ = False
 
 
 {- | A função 'velocRioAnterior' será usada na função 'estendeMapa' para, no caso de a função auxiliar 'rioAnterior' devolver @True@, tomar a velocidade com que esse rio anterior se move. 
+
+Assim, a função 'velocRioAnterior' pode ser definida da seguinte forma:
 
 @
 velocRioAnterior ((Rio v,_):_) = v
@@ -168,6 +246,8 @@ velocRioAnterior _ = 0
 No caso de a linha anterior usar um terreno @Rio@ e de a 'geraTerreno' ter atribuído igualmente um terreno @Rio@ à nova linha, com o auxílio das funções 'rioAnterior' e 'velocRioAnterior',
 esta função irá atribuir velocidades de direção oposta a rios contíguos.
 
+Assim, a função 'geraVelocidade' pode ser definida da seguinte forma:
+
 @
 geraVelocidade seed l = let rn = head (gera seed 1)
                             ri = mod rn (length l)
@@ -184,6 +264,8 @@ geraVelocidade seed l = let rn = head (gera seed 1)
 
 {- | A função 'adicionaVelocidade' associa a velocidade devolvida pela função 'geraVelocidade' ao terreno selecionado pela função 'geraTerreno'.
 
+Assim, a função 'adicionaVelocidade' pode ser definida da seguinte forma:
+
 @
 adicionaVelocidade (Rio _) v = Rio v
 adicionaVelocidade (Estrada _) v = Estrada v
@@ -199,6 +281,8 @@ adicionaVelocidade Relva _ = Relva
 
 
 {- | A função 'proximosObstaculosValidos' calcula que obstáculos podem ser utilizados para preencher a lista de obstáculos de uma próxima linha do mapa, conforme o terreno gerado para a nova linha.
+
+Assim, a função 'proximosObstaculosValidos' pode ser definida da seguinte forma:
 
 @
 proximosObstaculosValidos n (t,l)
@@ -227,11 +311,6 @@ proximosObstaculosValidos n (t,l)
 
 -}
 
-numeroNenhum :: [Obstaculo] -> Int
-numeroNenhum [] = 0
-numeroNenhum (h:t) | h == Nenhum = 1 + numeroNenhum t
-                   | otherwise = numeroNenhum t
-
 proximosObstaculosValidos :: Int -> (Terreno, [Obstaculo]) -> [Obstaculo]
 proximosObstaculosValidos n (t,l)
     | length l >= n = []
@@ -250,7 +329,36 @@ proximosObstaculosValidos n (t,l)
                                            else [Nenhum]
                     Relva -> [Nenhum, Arvore]
 
+{- | A função 'numeroNenhum', que recebe uma lista de obstáculos e retorna um número inteiro, 
 
+Assim, a função 'numeroNenhum' pode ser definida da seguinte forma:
+
+@
+numeroNenhum [] = 0
+numeroNenhum (h:t) | h == Nenhum = 1 + numeroNenhum t
+                   | otherwise = numeroNenhum t
+@
+
+-}
+
+numeroNenhum :: [Obstaculo] -> Int
+numeroNenhum [] = 0
+numeroNenhum (h:t) | h == Nenhum = 1 + numeroNenhum t
+                   | otherwise = numeroNenhum t
+
+{- | A função 'proximosObstaculosRio', que recebe e retorna uma lista de obstáculos,
+
+Assim, a função 'proximosObstaculosRio' pode ser definida da seguinte forma:
+
+@
+proximosObstaculosRio l = if not (elem Tronco l) then [Tronco]
+                                                 else let inicio = contaExtremos l Tronco
+                                                          fim = contaExtremos (reverse l) Tronco  
+                                                      in if inicio + fim < 5 then [Nenhum, Tronco]
+                                                                             else [Nenhum]
+@
+
+-}
 
 proximosObstaculosRio :: [Obstaculo] -> [Obstaculo]
 proximosObstaculosRio l = if not (elem Tronco l) then [Tronco]
@@ -259,6 +367,20 @@ proximosObstaculosRio l = if not (elem Tronco l) then [Tronco]
                                                       in if inicio + fim < 5 then [Nenhum, Tronco]
                                                                              else [Nenhum]
 
+{- | A função 'proximosObstaculosEstrada', que recebe e retorna uma lista de obstáculos,
+
+Assim, a função 'proximosObstaculosEstrada' pode ser definida da seguinte forma:
+
+@
+proximosObstaculosEstrada l = if not (elem Carro l) then [Carro]
+                                                    else let inicio = contaExtremos l Carro
+                                                             fim = contaExtremos (reverse l) Carro  
+                                                         in if inicio + fim < 3 then [Nenhum, Carro]
+                                                                                 else [Nenhum]
+@
+
+-}
+
 proximosObstaculosEstrada :: [Obstaculo] -> [Obstaculo]
 proximosObstaculosEstrada l = if not (elem Carro l) then [Carro]
                                                     else let inicio = contaExtremos l Carro
@@ -266,14 +388,22 @@ proximosObstaculosEstrada l = if not (elem Carro l) then [Carro]
                                                          in if inicio + fim < 3 then [Nenhum, Carro]
                                                                                  else [Nenhum]
 
+{- | A função 'proximosObstaculosRelva', que recebe e retorna uma lista de obstáculos,
+
+Assim, a função 'proximosObstaculosRelva' pode ser definida da seguinte forma:
+
+@
+proximosObstaculosRelva l = [Nenhum, Arvore]
+@
+
+-}
+
 proximosObstaculosRelva :: [Obstaculo] -> [Obstaculo]
 proximosObstaculosRelva l = [Nenhum, Arvore]
 
-
-
-
-
 {- | A função 'contaExtremos' é uma função auxiliar da função 'proximosObstaculosValidos' criada para garantir que obstáculos como @Tronco@ e @Carro@ não ultrapassam o seu comprimento máximo.
+
+Assim, a função 'contaExtremos' pode ser definida da seguinte forma:
 
 @
 contaExtremos [] _ = 0
@@ -291,6 +421,8 @@ contaExtremos (h:t) o = if h == o then 1 + contaExtremos t o
 
 {- | A função 'geraObstaculo' dá, com base em aleatórios devolvidos pela função 'gera' e na lista de possibilidades criada pela função 'proximosObstaculosValidos', 
 uma lista de obstáculos que será usada numa próxima linha do mapa. 
+
+Assim, a função 'geraObstaculos' pode ser definida da seguinte forma:
 
 @
 geraObstaculo [] _ _ = []
