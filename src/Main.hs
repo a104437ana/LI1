@@ -9,6 +9,7 @@ import Tarefa5_2022li1g030
 import Tarefa6_2022li1g030
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
+import System.Random
 
 main :: IO ()
 main = do
@@ -32,4 +33,9 @@ main = do
     perdeu <- loadBMP "imagem/perdeu.bmp"
     total <- loadBMP "imagem/total.bmp"
     let imagens = [estrada,titulo,jogar,jogar_red,continuar,continuar_red,sair,sair_red,pausa,retomar,retomar_red,gravar,gravar_red,gravar_blue,voltar_mi,voltar_mi_red,titulo_perdeu,perdeu,total]
-    playIO janela black 1 (estadoInicial imagens) desenhaIO eventoIO tempoIO
+    seed1 <- randomIO
+    seed2 <- randomIO
+    seed3 <- randomIO
+    seed4 <- randomIO
+    seed5 <- randomIO
+    playIO janela black 1 (estadoInicial imagens [seed1, seed2, seed3, seed4, seed5]) desenhaIO eventoIO tempoIO

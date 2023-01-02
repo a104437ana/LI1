@@ -19,6 +19,7 @@ import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.Picture
 import System.Random
 import System.Directory
+import System.Exit
 
 {-|
 O tipo de dados @OpcaoMenuInicial@ representa as diferentes opções apresentadas no menu inicial do jogo: 
@@ -62,40 +63,41 @@ data EstadoAtual = MenuInicial OpcaoMenuInicial
                  | PerdeuJogo
     deriving (Show, Read)
 
+type Seed = Int
 type Pontuacao = Int
 type LinhaAtual = Int
 type TempoDecorrido = Int
 type Imagens = [Picture]
-type World = (EstadoAtual, Jogo, LinhaAtual, Pontuacao, TempoDecorrido, Imagens)
-type SaveData = (EstadoAtual, Jogo, LinhaAtual, Pontuacao, TempoDecorrido)
+type World = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido, Imagens)
+type SaveData = (EstadoAtual, [Seed], Jogo, LinhaAtual, Pontuacao, TempoDecorrido)
 
 
 janela :: Display
 janela = InWindow "Crossy Road" (1600,900) (0,0)
 
-estadoInicial :: Imagens -> World
-estadoInicial imagens = (MenuInicial NovoJogo, (Jogo (Jogador (8,5)) (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum]),
-                                                                       (Rio (-1),[Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum]),
-                                                                       (Rio 1,[Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco,Nenhum,Nenhum,Nenhum,Nenhum,Tronco,Tronco,Tronco,Tronco]),
-                                                                       (Relva,[Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum]),
-                                                                       (Estrada 1,[Nenhum,Carro,Carro,Carro,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Carro,Carro,Carro,Nenhum,Nenhum,Nenhum,Nenhum]),
-                                                                       (Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
-                                                                       (Relva,[Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore]),
-                                                                       (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
-                                                                       (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])])), 0, 0, 0, imagens)
+estadoInicial :: Imagens -> [Seed] -> World
+estadoInicial imagens ls = (MenuInicial NovoJogo, ls, (Jogo (Jogador (8,5)) (estendeAte 5 ls (Mapa 16 [(Relva,[Arvore,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Nenhum,Arvore]),
+                                                                                                      (Relva,[Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore]),
+                                                                                                      (Relva,[Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Arvore,Arvore,Arvore,Arvore,Nenhum,Nenhum]),
+                                                                                                      (Relva,[Arvore,Arvore,Arvore,Arvore,Nenhum,Arvore,Arvore,Nenhum,Nenhum,Nenhum,Arvore,Nenhum,Arvore,Arvore,Arvore,Arvore])]))), 0, 0, 0, imagens)
+
+estendeAte :: Int -> [Seed] -> Mapa -> Mapa
+estendeAte 1 (s:ls) m = estendeMapa m s
+estendeAte n (s:ls) m = estendeAte (n-1) ls (estendeMapa m s)  
+
 
 desenhaIO :: World -> IO Picture
-desenhaIO (MenuInicial NovoJogo, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 1), translate 0 50 (i !! 3),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 6)]
-desenhaIO (MenuInicial Continuar, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1), translate 0 50 (i !! 2),translate 0 (-75) (i !! 5),translate 0 (-200) (i !! 6)]
-desenhaIO (MenuInicial Sair, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1),translate 0 50 (i !! 2),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 7)]
-desenhaIO (ModoJogo, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, td, i) = return $ 
+desenhaIO (MenuInicial NovoJogo, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 1), translate 0 50 (i !! 3),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Continuar, _, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1), translate 0 50 (i !! 2),translate 0 (-75) (i !! 5),translate 0 (-200) (i !! 6)]
+desenhaIO (MenuInicial Sair, _, _, _, _, _, i) = return $ Pictures [fundo, translate 0 (250) (i !! 1),translate 0 50 (i !! 2),translate 0 (-75) (i !! 4),translate 0 (-200) (i !! 7)]
+desenhaIO (ModoJogo, _, Jogo (Jogador (x,y)) (Mapa 16 l), _, p, td, i) = return $ 
     if jogoTerminou (Jogo (Jogador (x,y)) (Mapa 16 l)) then Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ [translate (-800) (330) (color white (text (show p)))])
     else Pictures ([Pictures ((desenhaMapa i 0 (Mapa 16 l)) ++ (desenhaJogador x y))] ++ [translate (-800) (330) (color white (text (show p)))])
-desenhaIO (MenuPausa Retomar, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 10),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 14)]
-desenhaIO (MenuPausa Gravar, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 12),translate 0 (-200) (i !! 14)]
-desenhaIO (MenuPausa Gravado, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 13),translate 0 (-200) (i !! 14)]
-desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 15)]
-desenhaIO (PerdeuJogo, _, _, p, _, i) = return $ Pictures ([fundoPerdeu, translate 0 (250) (i !! 16), translate 0 0 (i !! 17), translate (-50) (-200) (i !! 18)] ++ [translate (100) (-250) (color white (text (show p)))])
+desenhaIO (MenuPausa Retomar, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 10),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravar, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 12),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa Gravado, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 13),translate 0 (-200) (i !! 14)]
+desenhaIO (MenuPausa VoltarMenuInicial, _, _, _, _, _, i) = return $ Pictures [fundo,translate 0 (250) (i !! 8), translate 0 50 (i !! 9),translate 0 (-75) (i !! 11),translate 0 (-200) (i !! 15)]
+desenhaIO (PerdeuJogo, _, _, _, p, _, i) = return $ Pictures ([fundoPerdeu, translate 0 (250) (i !! 16), translate 0 0 (i !! 17), translate (-50) (-200) (i !! 18)] ++ [translate (100) (-250) (color white (text (show p)))])
 
 desenhaMapa :: Imagens -> Int -> Mapa -> [Picture]
 desenhaMapa i p (Mapa 16 (h:t)) = (desenhaTerreno i p h) ++ (desenhaObstaculo 0 p h) ++ (desenhaMapa i (p+1) (Mapa 16 t))
@@ -148,44 +150,56 @@ desenhaJogador x y = [color yellow (polygon [(((-790)+(100*(fromIntegral x))),(3
 
 eventoIO :: Event -> World -> IO World
 -- Menu Inicial
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial NovoJogo, j, la, p, s, i) = return (ModoJogo, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial NovoJogo, j, la, p, s, i) = return (MenuInicial Continuar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial NovoJogo, j, la, p, s, i) = return (MenuInicial Sair, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Continuar, j, la, p, s, i) = return (MenuInicial Sair, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Continuar, j, la, p, s, i) = carregaJogo (MenuInicial Continuar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Sair, j, la, p, s, i) =  error "Fim de Jogo"
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Sair, j, la, p, s, i) = return (MenuInicial NovoJogo, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Sair, j, la, p, s, i) = return (MenuInicial Continuar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Continuar, j, la, p, s, i) = return (MenuInicial NovoJogo, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (ModoJogo, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial NovoJogo, seed, j, la, p, s, i) = return (MenuInicial Sair, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = return (MenuInicial Sair, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = carregaJogo (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) =  exitSuccess
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) = return (MenuInicial NovoJogo, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Sair, seed, j, la, p, s, i) = return (MenuInicial Continuar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuInicial Continuar, seed, j, la, p, s, i) = return (MenuInicial NovoJogo, seed, j, la, p, s, i)
 -- Perdeu Jogo
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, j, la, p, s, i) = return (estadoInicial i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (PerdeuJogo, _, j, la, p, s, i) = do
+    seed1 <- randomIO
+    seed2 <- randomIO
+    seed3 <- randomIO
+    seed4 <- randomIO
+    seed5 <- randomIO
+    return (estadoInicial i [seed1, seed2, seed3, seed4, seed5])
 -- Modo Jogo
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, j, la, p, s, i)
-                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 > p = return (ModoJogo, animaJogador j (Move Cima), la+1, p+1, s, i)
-                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 <= p = return (ModoJogo, animaJogador j (Move Cima), la+1, p, s, i)
-                                                                        | otherwise = return (ModoJogo, animaJogador j (Move Cima), la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, j, la, p, s, i)
-                                                                          | variacaoDaOrdenada j (Move Baixo) /= 0 = return (ModoJogo, animaJogador j (Move Baixo), la-1, p, s, i) 
-                                                                          | otherwise = return (ModoJogo, animaJogador j (Move Baixo), la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, j, la, p, s, i) = 
-    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, j, la, p, s, i) else return (ModoJogo, animaJogador j (Move Esquerda), la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, j, la, p, s, i) = 
-    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, j, la, p, s, i) else return (ModoJogo, animaJogador j (Move Direita), la, p, s, i)
-eventoIO (EventKey (SpecialKey _) Up _ _) (ModoJogo, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, j, la, p, s, i) else return (ModoJogo, animaJogador j (Parado), la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (ModoJogo, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, j, la, p, s, i) else return (MenuPausa Retomar, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (ModoJogo, seed, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i)
+                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 > p = return (ModoJogo, seed, animaJogador j (Move Cima), la+1, p+1, s, i)
+                                                                        | variacaoDaOrdenada j (Move Cima) /= 0 && la+1 <= p = return (ModoJogo, seed, animaJogador j (Move Cima), la+1, p, s, i)
+                                                                        | otherwise = return (ModoJogo, seed, animaJogador j (Move Cima), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (ModoJogo, seed, j, la, p, s, i) | jogoTerminou j = removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i)
+                                                                          | variacaoDaOrdenada j (Move Baixo) /= 0 = return (ModoJogo, seed, animaJogador j (Move Baixo), la-1, p, s, i) 
+                                                                          | otherwise = return (ModoJogo, seed, animaJogador j (Move Baixo), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyLeft) Down _ _) (ModoJogo, seed, j, la, p, s, i) = 
+    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Move Esquerda), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyRight) Down _ _) (ModoJogo, seed, j, la, p, s, i) = 
+    if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Move Direita), la, p, s, i)
+eventoIO (EventKey (SpecialKey _) Up _ _) (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Parado), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (MenuPausa Retomar, seed, j, la, p, s, i)
 -- Menu Pausa
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Retomar, j, la, p, s, i) = return (ModoJogo, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Retomar, j, la, p, s, i) = return (MenuPausa Gravar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Retomar, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Gravar, j, la, p, s, i) = guardaJogo (MenuPausa Gravado, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravar, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravar, j, la, p, s, i) = return (MenuPausa Retomar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravado, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravado, j, la, p, s, i) = return (MenuPausa Retomar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa VoltarMenuInicial, j, la, p, s, i) = return (estadoInicial i)
-eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa VoltarMenuInicial, j, la, p, s, i) = return (MenuPausa Gravar, j, la, p, s, i)
-eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa VoltarMenuInicial, j, la, p, s, i) = return (MenuPausa Retomar, j, la, p, s, i)
-eventoIO _ (ModoJogo, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, j, la, p, s, i) else return (ModoJogo, animaJogador j (Parado), la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (ModoJogo, seed,j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (MenuPausa Gravar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Retomar, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = guardaJogo (MenuPausa Gravado, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravar, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa Gravado, seed, j, la, p, s, i) = return (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa Gravado, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyEnter) Down _ _) (MenuPausa VoltarMenuInicial, _, j, la, p, s, i) = do
+    seed1 <- randomIO
+    seed2 <- randomIO
+    seed3 <- randomIO
+    seed4 <- randomIO
+    seed5 <- randomIO
+    return (estadoInicial i [seed1, seed2, seed3, seed4, seed5])
+eventoIO (EventKey (SpecialKey KeyUp) Down _ _) (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i) = return (MenuPausa Gravar, seed, j, la, p, s, i)
+eventoIO (EventKey (SpecialKey KeyDown) Down _ _) (MenuPausa VoltarMenuInicial, seed, j, la, p, s, i) = return (MenuPausa Retomar, seed, j, la, p, s, i)
+eventoIO _ (ModoJogo, seed, j, la, p, s, i) = if jogoTerminou j then removeJogoGuardado (PerdeuJogo, seed, j, la, p, s, i) else return (ModoJogo, seed, animaJogador j (Parado), la, p, s, i)
 eventoIO _ w = return w
 
 tempoIO :: Float -> World -> IO World
@@ -194,20 +208,20 @@ tempoIO n w = do
     return (tempo n seed w)
 
 tempo :: Float -> Int -> World -> World
-tempo n seed (ModoJogo,(Jogo (Jogador (x,y)) m), la, p, td, i) = 
+tempo n seedt (ModoJogo, seed, (Jogo (Jogador (x,y)) m), la, p, td, i) = 
     if jogoTerminou (Jogo (Jogador (x,y)) m) 
-        then (PerdeuJogo,(Jogo (Jogador (x,y)) m), la, p, td+1, i)
+        then (PerdeuJogo, seed, (Jogo (Jogador (x,y)) m), la, p, td+1, i)
         -- deslizar jogo apenas quando o tempo decorrido é ímpar
         else if mod td 2 == 0 
-                then (ModoJogo, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1, i)
-                else (ModoJogo, deslizaJogo seed (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
+                then (ModoJogo, seed, animaJogo (Jogo (Jogador (x,y)) m) Parado, la, p, td+1, i)
+                else (ModoJogo, seed, deslizaJogo seedt (animaJogo (Jogo (Jogador (x,y)) m) Parado), la, p, td+1, i)
 tempo _ _ w = w
 
 converteWorldParaSaveData :: World -> SaveData
-converteWorldParaSaveData (m, j, la, p, s, i) = (m, j, la, p, s)
+converteWorldParaSaveData (m, seed, j, la, p, s, i) = (m, seed, j, la, p, s)
 
 converteSaveDataParaWorld :: SaveData -> Imagens -> World
-converteSaveDataParaWorld (m, j, la, p, s) i = (m, j, la, p, s, i)
+converteSaveDataParaWorld (m, seed, j, la, p, s) i = (m, seed, j, la, p, s, i)
 
 guardaJogo :: World -> IO World
 guardaJogo w = do 
@@ -215,10 +229,10 @@ guardaJogo w = do
     return w
 
 carregaJogo :: World -> IO World 
-carregaJogo (m, j, la, p, s, i) = do
+carregaJogo (m, seed, j, la, p, s, i) = do
     fileExist <- doesFileExist "crossyroad.sav"
     saved <- if fileExist then readFile "crossyroad.sav"
-                          else return (show (m, j, la, p, s))
+                          else return (show (m, seed, j, la, p, s))
     return (converteSaveDataParaWorld (read saved) i)
 
 removeJogoGuardado :: World -> IO World
