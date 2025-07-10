@@ -17,7 +17,7 @@ import Tarefa5_2022li1g030
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.Picture
-import System.Random
+import System.Random hiding (Seed)
 import System.Directory
 import System.Exit
 

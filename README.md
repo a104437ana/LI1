@@ -1,83 +1,65 @@
-# Laboratórios de Informática I
+# Crossy Road 🐔
+## Projeto de LI1
 
-## Repositório
+Jogo desenvolvido em Haskell por nós no âmbito da Unidade Curricular de **Laboratórios de Informática I** (**LI1**) no ano letivo de 2022/2023. Trata-se de uma recriação do famoso jogo **Crossy Road**.
 
-Se tiver chave SSH configurada no GitLab pode fazer clone com o seguinte link:
+### Nota final: 16/20 ✅
 
-```bash
-$ git clone git@gitlab.com:uminho-di/li1/2223/2022li1g030.git
-$ cd 2022li1g030
+![Crossy Road](readme/2.png)
+
+## Como jogar?
+### Requisitos:
+- Ter o GHC (Glasgow Haskell Compiler) versão 9.2.1 ou superior instalado
+- Ter o Cabal versão 3.4 ou superior instalado
+### Comandos:
 ```
-
-Alternativamente, pode fazer clone por https com o seguinte link:
-
-```bash
-$ git clone https://gitlab.com/uminho-di/li1/2223/projetos/2022li1g030.git
-$ cd 2022li1g030
+git clone git@github.com:a104437ana/LI1.git
 ```
-
-## Interpretador
-
-Pode abrir o interpretador do Haskell (GHCi) utilizando o cabal ou diretamente.
-
-1. Usando o cabal
-
-```bash
-$ cabal repl
 ```
-
-2. Usando o GHCi
-
-```bash
-$ ghci -i="src" -i="tests" src/Main.hs
+cd LI1
 ```
-
-## Testes
-
-O projecto utiliza a biblioteca [HUnit](https://hackage.haskell.org/package/HUnit) para fazer testes unitários.
-
-Pode correr os testes utilizando uma das seguintes alternativas:
-
-1. Usando o `cabal`
-
-```bash
-$ cabal test
 ```
-
-2. Usando o GHCi
-
-```bash
-$ ghci -i="src" -i="tests" tests/Spec.hs
->>> runTestsT1 -- Correr os testes tarefa 1
->>> runTestsT2 -- Correr os testes tarefa 2
->>> runTestsT3 -- Correr os testes tarefa 3
->>> runTestsT4 -- Correr os testes tarefa 4
->>> main -- Correr todos os testes
+cabal run
 ```
+### Teclas:
 
-3. Usando o wrapper `runhaskell`
+- Setas (⬆️ ⬇️ ⬅️ ➡️)           
+- Enter (⏎)
 
-```bash
-$ runhaskell -i="src" -i="tests" tests/Spec.hs
-```
+### Objetivo:
 
-## Documentação
+O objetivo do jogo é avançar o máximo possível pelo caminho, tentando alcançar o maior nível antes de morrer.
 
-Pode gerar a documentação com o [Haddock](https://haskell-haddock.readthedocs.io/).
+Não há um fim definido — quanto mais você avançar, maior será o seu recorde.
 
-1. Usando o `cabal`
+Boa sorte! 🍀
 
-```bash
-$ cabal haddock --haddock-all
-```
+## Projeto desenvolvido
+### Comparação
+| O nosso Crossy Road                     | O real Crossy Road                    |
+|:-----------------------------:|:------------------------------:|
+| ![Alt 1](readme/2.png)     | ![Alt 2](readme/0.png)     |
 
-2. Usando diretamente o `haddock`
+### Algumas imagens do jogo desenvolvido
 
-```bash
-$ haddock -h -o doc/html src/*.hs
-```
+![Crossy Road](readme/1.png)
+![Crossy Road](readme/2.png)
+![Crossy Road](readme/3.png)
+![Crossy Road](readme/4.png)
 
-## Grupo 30
+### Mais informações
 
-- **A104437** Ana Sá Oliveira;
-- **A72481** Sara Campos Ramalho;
+Este projeto foi dividido em duas fases, tendo cada uma o seu respetivo enunciado: [Fase 1](Fase1.pdf) e [Fase 2](Fase2.pdf).
+
+Este projeto vai além de um jogo, abrangendo testes, documentação, entre outros elementos.
+
+Para mais informações ver o [README2.md](README2.md), o README original do trabalho que entregamos.
+
+Este novo README, o [README.md](README.md) que está a ler, foi criado para apresentar melhor o projeto ao mundo e para atualizar algumas informações.
+
+Para poderem experimentar o jogo, fizemos alguns ajustes no código para resolver problemas de compilação, mas mantivemos a essência e o funcionamento original do projeto.
+
+## Autores
+### Grupo 30
+- Ana Sá Oliveira (A104437)
+- Sara Campos Ramalho (A72481)
