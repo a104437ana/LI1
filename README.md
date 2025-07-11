@@ -9,8 +9,10 @@ Jogo desenvolvido em Haskell por nós no âmbito da Unidade Curricular de **Labo
 
 ## Como jogar?
 ### Requisitos:
-- Ter o GHC (Glasgow Haskell Compiler) versão 9.2.1 ou superior instalado
-- Ter o Cabal versão 3.4 ou superior instalado
+- Ter o GHC (Glasgow Haskell Compiler) versão 9.6.7 instalado
+- Ter o Cabal versão 3.12.1.0 instalado
+
+(Testado apenas com estas versões — outras versões podem não funcionar corretamente.)
 ### Comandos:
 ```
 git clone git@github.com:a104437ana/LI1.git
@@ -20,6 +22,10 @@ cd LI1
 ```
 ```
 cabal run
+```
+Como alternativa ao comando `cabal run`, pode usar o seguinte comando:
+```
+cabal run 2022li1g030
 ```
 ### Teclas:
 
@@ -61,5 +67,5 @@ Para poderem experimentar o jogo, fizemos alguns ajustes no código para resolve
 
 ## Autores
 ### Grupo 30
-- Ana Sá Oliveira (A104437)
+- [Ana Sá Oliveira](https://github.com/a104437ana) (A104437)
 - Sara Campos Ramalho (A72481)
