@@ -36,6 +36,8 @@ cabal run 2022li1g030
 
 O objetivo do jogo é avançar o máximo possível pelo caminho, tentando alcançar o maior nível antes de morrer.
 
+Para sobreviver, evite ser atropelado por carros ou camiões, não caia ao rio e continue a avançar — o jogo não espera por ninguém!
+
 Não há um fim definido — quanto mais você avançar, maior será o seu recorde.
 
 Boa sorte! 🍀
@@ -44,20 +46,55 @@ Boa sorte! 🍀
 ### Comparação
 | O nosso Crossy Road                     | O real Crossy Road                    |
 |:-----------------------------:|:------------------------------:|
-| ![Alt 1](readme/2.png)     | ![Alt 2](readme/0.png)     |
+| ![O nosso Crossy Road](readme/2.png)     | ![O real Crossy Road](readme/0.png)     |
 
-### Algumas imagens do jogo desenvolvido
+### Menu inicial
+![Menu inicial](readme/1.png)
+### Um jogo no nível 0
+![Um jogo no nível 0](readme/2.png)
+### Menu de pausa
+![Menu de pausa](readme/3.png)
+### Um jogo no nível 9
+![Um jogo no nível 9](readme/4.png)
+### Mensagem apresentada ao perder um jogo
+![Mensagem apresentada ao perder um jogo](readme/5.png)
 
-![Crossy Road](readme/1.png)
-![Crossy Road](readme/2.png)
-![Crossy Road](readme/3.png)
-![Crossy Road](readme/4.png)
+### Organização do projeto
 
-### Mais informações
+```
+📁 LI1
+├── 📁 doc                 # Documentação gerada (ficheiros HTML do Haddock)
+├── 📁 imagem              # Imagens necessárias para o jogo correr (carregadas pelo Gloss)
+├── 📁 readme              # Imagens utilizadas neste README.md
+├── 📁 src                 # Código-fonte principal do jogo (módulos Haskell)
+├── 📁 tests               # Testes unitários (usando HUnit)
+├── 📄 .gitignore          # Ficheiros e pastas a serem ignorados pelo Git
+├── 📄 2022li1g030.cabal   # Ficheiro de configuração do projeto Cabal (dependências, módulos, exec)
+├── 📄 Fase1.pdf           # Enunciado da fase 1 do projeto (regras e objetivos)
+├── 📄 Fase2.pdf           # Enunciado da fase 2 do projeto (continuação e novas tarefas)
+├── 📄 README.md           # Documentação principal do projeto (instruções de uso, requisitos, etc.)
+└── 📄 README2.md          # Versão anterior do README.md
+```
 
 Este projeto foi dividido em duas fases, tendo cada uma o seu respetivo enunciado: [Fase 1](Fase1.pdf) e [Fase 2](Fase2.pdf).
 
 Este projeto vai além de um jogo, abrangendo testes, documentação, entre outros elementos.
+
+### Documentação
+
+A pasta [doc/html](doc/html) contém a documentação gerada pelo Haddock em formato HTML.
+
+Para a visualizar corretamente, abra o ficheiro [doc/html/index.html](doc/html/index.html) usando o **Live Server** no seu editor (exemplo: VS Code). Isso permite navegar pela documentação corretamente no navegador.
+
+### Testes
+
+Para executar os testes unitários, basta usar o comando:
+
+```
+cabal test
+```
+
+### Mais informações
 
 Para mais informações ver o [README2.md](README2.md), o README original do trabalho que entregamos.
 
